@@ -2,6 +2,8 @@
 - [ ] The commit message follows our guidelines
 - [ ] Docs have been added / updated (for bug fixes / features)
 
+* **Is this PR related to an issue?**
+
 
 * **What kind of change does this PR introduce?** (Bug fix, feature, docs update, ...)
 
