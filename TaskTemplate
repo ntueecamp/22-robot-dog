@@ -1,0 +1,47 @@
+/**
+ * @file TaskTemplate
+ * @author ntueecamp 2022 (FrSh28)
+ * @brief Templates for basic structure of a task and how to create a task
+ * @date 2022-06-28
+ * 
+ */
+
+void someTask((void*) argv)
+{
+    // do some thing...
+
+    while (true)    // must have a infinite loop
+    {
+        // loop cycle of the task
+        // call `taskYIELD()` at least once or block on something to yield yourself
+    }
+
+    // should never get here
+}
+
+TaskHandle_t createSomeTask(int a, int b, int c)
+{
+    // NOTE: you only need to do this if the arguments are not global and have too short lifetime
+    // CAUTION: if the task would be created and deleted more than once,
+    //          special care are required to ensure no memory leak
+    int* argv = (int*)malloc(3 * sizeof(int));
+    // replace int by some large enough type if necessary
+    // replace 3 by the number of arguments your function needs
+    argv[0] = a;
+    argv[1] = b;
+    argv[2] = c;
+
+    BaseType_t xResult;
+    TaskHandle_t someTaskHandle;
+    xResult = xTaskCreate( someTask,
+                           "SomeTask",
+                           100,     // stack size in words (4 bytes on ESP32), TBD
+                           (void*) argv,
+                           2,       // priority, >= 2 is good, TBD
+                           &someTaskHandle);
+
+    if (xResult != pdPASS)
+        return NULL;
+
+    return someTaskHandle;
+}
