@@ -20,7 +20,7 @@ class Radar {
    public:
     // constructor & destructor
     Radar();
-    ~Radar();
+    ~Radar(){};
 
     // initialize
     void init();

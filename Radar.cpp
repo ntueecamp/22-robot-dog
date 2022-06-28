@@ -4,7 +4,6 @@ Radar::Radar() {
     for (int i = 0; i < 5; i++) {
         preDis[i] = 0;
         curDis[i] = 0;
-        effectDis[i] = 0;
     }
     angle = CENTERANGLE;
     deltaAngle = ROTATEANGLE;
@@ -30,6 +29,10 @@ short Radar::getDir() {
 }
 
 void Radar::radarRotation() {
+    for (int i = 0; i < 5; i++) {
+        preDis[i] = curDis[i];
+        curDis[i] = 0;
+    }
     for (int i = 0; i < 9; i++) {
         servo.write(angle);
         delay(RADARDELAYTIME);
@@ -37,7 +40,6 @@ void Radar::radarRotation() {
         if (curDis[(angle - 30) / 30])
             curDis[(angle - 30) / 30] = (curDis[(angle - 30) / 30] + disMeasuring()) / 2;
         else {
-            preDis[(angle - 30) / 30] = curDis[(angle - 30) / 30];
             curDis[(angle - 30) / 30] = disMeasuring();
         }
 
@@ -69,10 +71,11 @@ void Radar::calculate() {
     direction = 0;
     for (int i = 0; i < 5; i++) {
         if (preDis[i] <= THRESHOLD && curDis[i] <= THRESHOLD) {
-            times ++ ;
+            times++;
             direction += 1 << (4 - i);
             meanDis += curDis[i];
         }
     }
-    meanDis /= (float)times;
+    if (times > 0)
+        meanDis /= (float)times;
 }
