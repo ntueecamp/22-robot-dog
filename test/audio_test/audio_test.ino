@@ -1,10 +1,10 @@
-#include "MusicDefinitions.h"
 #include "XT_DAC_Audio.h"
 #include "new_audio.h"
-#include <time.h>
 #include "woof.h"
+#include "low_woof.h"
 
-New_Audio Sound(woof,size_woof);     
+New_Audio Sound_High(woof,size_woof);
+New_Audio Sound_Low(low_woof,size_low_woof);          
                                       
 XT_DAC_Audio_Class DacAudio(25,0);              
 
@@ -13,6 +13,16 @@ void setup() {
 }
 
 void loop() {
-  Sound.play_music(5,500);
-  delay(5000);
+  if(Serial.available()>0)
+  {
+    String dat=Serial.readStringUntil('\n');
+    if(dat=="high")
+    {
+      Sound_High.play_music(5,300);
+    }
+    else if(dat=="low")
+    {
+      Sound_Low.play_music(5,300);
+    }
+  }
 }
