@@ -77,6 +77,8 @@ void handlePhotoResistor(void* argv)
     uint8_t  pin       =  (uint8_t)((uint32_t*)argv)[0];
     uint16_t threshold = (uint16_t)((uint32_t*)argv)[1];
     uint32_t period    =           ((uint32_t*)argv)[2];
+    free(argv);
+
     period = period / portTICK_PERIOD_MS;
     TickType_t lastWakeTime = xTaskGetTickCount();
 
@@ -90,7 +92,6 @@ void handlePhotoResistor(void* argv)
     }
 
     // should never get here
-    free();
 }
 
 TaskHandle_t initPhotoResistor(const uint8_t& pin, const uint16_t& threshold, const uint32_t& period)
