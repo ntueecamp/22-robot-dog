@@ -47,7 +47,7 @@ int initCapTouch(const uint8_t& pin, const uint16_t& threshold);
  * @param pin The pin to be attached to the limit switch
  * @param triggerMode How interrupt is triggered, either RISING or FALLING
  */
-void IRAM_ATTR onLimitSwitch();
+void IRAM_ATTR onLimitSwitchISR();
 int initLimitSwitch(const uint8_t& pin, const int& triggerMode);
 
 /**

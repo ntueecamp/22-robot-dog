@@ -46,7 +46,7 @@ int initCapTouch(const uint8_t& pin, const uint16_t& threshold)
     return 0;
 }
 
-void IRAM_ATTR onLimitSwitch()
+void IRAM_ATTR onLimitSwitchISR()
 {
     BaseType_t xHigherPriorityWoken = pdFALSE, xResult;
     xResult = xEventGroupSetBitsFromISR(interactInputsEG, LIMIT_SWITCH_BIT, &xHigherPriorityWoken);
@@ -67,7 +67,7 @@ int initLimitSwitch(const uint8_t& pin, const int& triggerMode)
     else
         return -1;
     
-    attachInterrupt(pin, onLimitSwitch, triggerMode);
+    attachInterrupt(pin, onLimitSwitchISR, triggerMode);
 
     return 0;
 }
