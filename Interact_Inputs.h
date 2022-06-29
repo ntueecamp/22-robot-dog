@@ -25,7 +25,7 @@
  * Call `xEventGroupClearBits(interactInputsEG, XXX_BIT)` to clear the event bit
  */
 extern EventGroupHandle_t interactInputsEG;
-int  createInteractInputsEG();
+EventGroupHandle_t createInteractInputsEG();
 void deleteInteractInputsEG();
 
 /**

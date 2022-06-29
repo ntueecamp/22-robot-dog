@@ -10,15 +10,15 @@
 
 EventGroupHandle_t interactInputsEG;
 
-int createInteractInputsEG()
+EventGroupHandle_t createInteractInputsEG()
 {
     if (interactInputsEG == NULL)
         interactInputsEG = xEventGroupCreate();
 
     if (interactInputsEG != NULL)
-        return 0;
+        return interactInputsEG;
     else    // create failed
-        return -1;
+        return NULL;
 }
 
 void deleteInteractInputsEG()
