@@ -33,9 +33,8 @@ public:
   void initialize(int _channel, int _servoPin, double _minSpeed, double _maxSpeed);
 
   // set servo speed
+  // range from -1 to 1
   void write(double R);
-  // calculate speed by mapping before setting speed
-  double mapWrite(double val, double minVal, double maxVal);
 
 };
 

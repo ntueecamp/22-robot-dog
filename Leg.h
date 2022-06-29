@@ -4,8 +4,8 @@
 #include "Arduino.h"
 #include "ESP32Servo.h"
 
-#define MIN_SPEED             0.0
-#define MAX_SPEED             180.0
+#define MIN_SPEED             -1.0
+#define MAX_SPEED             1.0
 
 #define DEFAULT_LEFT_CHANNEL  0
 #define DEFAULT_RIGHT_CHANNEL 1
@@ -22,19 +22,13 @@ private:
   int leftChannel, rightChannel;
   int leftPin, rightPin;
 
-  void initializeServo();
-
 public:
 
   // set channel and pin with specified or default values
   void initialize();
-  void initialize(int _leftPin, int _rightPin);
-  void initialize(int _leftChannel, int _rightChannel, int _leftPin, int _rightPin);
 
-  // set servo speed
+  // set servo speed from -1.0 to 1.0
   void write(double leftR, double rightR);
-  // calculate speed by mapping before setting speed
-  double mapWrite(double leftVal, double rightVal, double minVal, double maxVal);
   
 };
 
