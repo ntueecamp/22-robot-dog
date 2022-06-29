@@ -110,7 +110,7 @@ TaskHandle_t initPhotoResistor(const uint8_t& pin, const uint16_t& threshold, co
     TaskHandle_t photoResistorTaskHandle;
     xResult = xTaskCreate( handlePhotoResistor,
                            "HandlePhotoResistor",
-                           1024,     // stack size in words (4 bytes on ESP32), TBD
+                           1024,     // stack size in words (4 bytes on ESP32)
                            (void*)argv,
                            2,       // priority, >= 2 is good, TBD
                            &photoResistorTaskHandle );
