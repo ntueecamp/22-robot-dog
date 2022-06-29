@@ -11,9 +11,9 @@
 #include "Interact_Inputs.h"
 #include "Leg.h"
 
-#define Cap_Touch_Pin      4
-#define Limit_Switch_Pin   12
-#define Photo_Resistor_Pin 32
+#define CAP_TOUCH_PIN      4
+#define LIMIT_SWITCH_PIN   12
+#define PHOTO_RESISTOR_PIN 32
 
 void setup() {
   // put your setup code here, to run once:
@@ -22,9 +22,9 @@ void setup() {
   Serial.println("****Debug mode****\n");
 #endif
 
-  initCapTouch(Cap_Touch_Pin, 500);   // TBD
-  initLimitSwitch(Limit_Switch_Pin, RISING);
-  initPhotoResistor(Photo_Resistor_Pin, 1500, 1000);  // TBD
+  initCapTouch(CAP_TOUCH_PIN, 50);
+  initLimitSwitch(LIMIT_SWITCH_PIN, RISING);
+  initPhotoResistor(PHOTO_RESISTOR_PIN, 1500, 300);    // with 10 kohm to GND
 }
 
 void loop() {
