@@ -8,37 +8,37 @@
 
 #include "Interact_Inputs.h"
 
-EventGroupHandle_t interactInputsEG;
+EventGroupHandle_t interactEG;
 
-EventGroupHandle_t createInteractInputsEG()
+EventGroupHandle_t createInteractEG()
 {
-    if (interactInputsEG == NULL)
-        interactInputsEG = xEventGroupCreate();
+    if (interactEG == NULL)
+        interactEG = xEventGroupCreate();
 
-    if (interactInputsEG != NULL)
-        return interactInputsEG;
+    if (interactEG != NULL)
+        return interactEG;
     else    // create failed
         return NULL;
 }
 
-void deleteInteractInputsEG()
+void deleteInteractEG()
 {
-    vEventGroupDelete(interactInputsEG);
-    interactInputsEG = NULL;
+    vEventGroupDelete(interactEG);
+    interactEG = NULL;
 }
 
 void IRAM_ATTR onCapTouchISR()
 {
     BaseType_t xHigherPriorityWoken = pdFALSE, xResult;
-    xResult = xEventGroupSetBitsFromISR(interactInputsEG, CAP_TOUCH_BIT, &xHigherPriorityWoken);
+    xResult = xEventGroupSetBitsFromISR(interactEG, CAP_TOUCH_BIT, &xHigherPriorityWoken);
     if (xResult != pdFAIL)
         portYIELD_FROM_ISR(xHigherPriorityWoken);
 }
 
 int initCapTouch(const uint8_t& pin, const uint16_t& threshold)
 {
-    if (interactInputsEG == NULL)
-        if (createInteractInputsEG() == NULL)   // create failed
+    if (interactEG == NULL)
+        if (createInteractEG() == NULL)   // create failed
             return -1;
 
     touchAttachInterrupt(pin, onCapTouchISR, threshold);
@@ -49,15 +49,15 @@ int initCapTouch(const uint8_t& pin, const uint16_t& threshold)
 void IRAM_ATTR onLimitSwitchISR()
 {
     BaseType_t xHigherPriorityWoken = pdFALSE, xResult;
-    xResult = xEventGroupSetBitsFromISR(interactInputsEG, LIMIT_SWITCH_BIT, &xHigherPriorityWoken);
+    xResult = xEventGroupSetBitsFromISR(interactEG, LIMIT_SWITCH_BIT, &xHigherPriorityWoken);
     if (xResult != pdFAIL)
         portYIELD_FROM_ISR(xHigherPriorityWoken);
 }
 
 int initLimitSwitch(const uint8_t& pin, const int& triggerMode)
 {
-    if (interactInputsEG == NULL)
-        if (createInteractInputsEG() == NULL)   // create failed
+    if (interactEG == NULL)
+        if (createInteractEG() == NULL)   // create failed
             return -1;
 
     if (triggerMode == RISING)
@@ -80,13 +80,13 @@ void handlePhotoResistor(void* argv)
     // free(argv);
 
     period = period / portTICK_PERIOD_MS;
-    TickType_t lastWakeTime = xTaskGetTickCount();
+    TickType_t lastWakeTime = 0;
 
     while (true)
     {
         lastWakeTime = xTaskGetTickCount();
         if (analogRead(pin) < threshold)
-            xEventGroupSetBits(interactInputsEG, PHOTO_RESIETOR_BIT);
+            xEventGroupSetBits(interactEG, PHOTO_RESIETOR_BIT);
         
         vTaskDelayUntil(&lastWakeTime, period);
     }
@@ -96,8 +96,8 @@ void handlePhotoResistor(void* argv)
 
 TaskHandle_t initPhotoResistor(const uint8_t& pin, const uint16_t& threshold, const uint32_t& period)
 {
-    if (interactInputsEG == NULL)
-        if (createInteractInputsEG() == NULL)   // create failed
+    if (interactEG == NULL)
+        if (createInteractEG() == NULL)   // create failed
             return NULL;
 
     //uint32_t* argv = (uint32_t*)malloc(2 * sizeof(uint32_t));
@@ -109,7 +109,7 @@ TaskHandle_t initPhotoResistor(const uint8_t& pin, const uint16_t& threshold, co
     BaseType_t xResult;
     TaskHandle_t photoResistorTaskHandle;
     xResult = xTaskCreate( handlePhotoResistor,
-                           "HandlePhotoResistor",
+                           "PhotoResistorHandler",
                            1024,     // stack size in words (4 bytes on ESP32)
                            (void*)argv,
                            2,       // priority, >= 2 is good, TBD

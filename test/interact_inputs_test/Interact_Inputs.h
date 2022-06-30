@@ -21,15 +21,15 @@
 /**
  * @brief The event group associated with user interaction with robot dog
  * 
- * Call `xEventGroupSetBits(interactInputsEG, XXX_BIT)` to clear the event bit
- * Call `xEventGroupClearBits(interactInputsEG, XXX_BIT)` to clear the event bit
+ * Call `xEventGroupSetBits(interactEG, XXX_BIT)` to clear the event bit
+ * Call `xEventGroupClearBits(interactEG, XXX_BIT)` to clear the event bit
  */
-extern EventGroupHandle_t interactInputsEG;
-EventGroupHandle_t createInteractInputsEG();
-void deleteInteractInputsEG();
+extern EventGroupHandle_t interactEG;
+EventGroupHandle_t createInteractEG();
+void deleteInteractEG();
 
 /**
- * @brief init function and ISR for capacitance touch sensor
+ * @brief Init function and ISR for capacitance touch sensor
  * 
  * @param pin The pin to be attached to the capacitance touch sensor
  *            Available pins: (0), 2, 4, 12, 13, 14, 15, 27, 32, 33
@@ -42,7 +42,7 @@ void IRAM_ATTR onCapTouchISR();
 int initCapTouch(const uint8_t& pin, const uint16_t& threshold);
 
 /**
- * @brief init function and ISR for limit switch
+ * @brief Init function and ISR for limit switch
  *
  * @param pin The pin to be attached to the limit switch
  * @param triggerMode How interrupt is triggered, either RISING or FALLING
@@ -51,7 +51,7 @@ void IRAM_ATTR onLimitSwitchISR();
 int initLimitSwitch(const uint8_t& pin, const int& triggerMode);
 
 /**
- * @brief init function and periodic handler for photo resistor
+ * @brief Init function and periodic handler for photo resistor
  *
  * @param pin The pin to be attached to the photo resistor
  *            Available pins: 32, 33, 34, 35, 36, 37, 38, 39
