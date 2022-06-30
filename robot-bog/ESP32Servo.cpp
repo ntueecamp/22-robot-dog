@@ -14,7 +14,7 @@ void ESP32Servo::initialize(int _channel, int _servoPin, double _minSpeed, doubl
 
 void ESP32Servo::write(double R) {
   // set speed range constraint
-  R = min(1.0, max(-1.0, R));
+  R = min(ESP32Servo::maxSpeed, max(ESP32Servo::minSpeed, R));
   // map speed to pulse width
   int timer_count = fmap(R, ESP32Servo::minSpeed, ESP32Servo::maxSpeed, MIN_DUTY, MAX_DUTY) / PWM_CYCLE * TIMER_RESOLUTION;
   ledcWrite(ESP32Servo::channel, timer_count);
