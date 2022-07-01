@@ -2,7 +2,7 @@
 #define Leg_h
 
 #include "Arduino.h"
-#include "ESP32Servo.h"
+#include "ESP360Servo.h"
 
 #define MIN_SPEED             -1.0
 #define MAX_SPEED             1.0
@@ -17,7 +17,7 @@ class Leg {
 
 private:
 
-  ESP32Servo leftServo, rightServo;
+  ESP360Servo leftServo, rightServo;
 
   int leftChannel, rightChannel;
   int leftPin, rightPin;
