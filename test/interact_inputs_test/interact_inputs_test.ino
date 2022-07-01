@@ -7,12 +7,12 @@
 #define LIMIT_SWITCH_PIN   12
 #define PHOTO_RESISTOR_PIN 32
 
-EventGroupHandle_t interactEG;
+EventGroupHandle_t intEG;
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  interactEG = createInteractEG();
+  intEG = createInteractEG();
 
   initCapTouch(CAP_TOUCH_PIN, 50);
   initLimitSwitch(LIMIT_SWITCH_PIN, RISING);
@@ -22,7 +22,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   EventBits_t curBits;
-  curBits = xEventGroupWaitBits( interactEG,
+  curBits = xEventGroupWaitBits( intEG,
                                  CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESIETOR_BIT,
                                  pdFALSE,   // true -> clear the bits before returning, won't affect returned value
                                  pdFALSE,   // true -> wait for all
@@ -31,16 +31,16 @@ void loop() {
   if (curBits & CAP_TOUCH_BIT)
   {
     Serial.println("CAP");// (touchRead(CAP_TOUCH_PIN));
-    xEventGroupClearBits(interactEG, CAP_TOUCH_BIT);
+    xEventGroupClearBits(intEG, CAP_TOUCH_BIT);
   }
   if (curBits & LIMIT_SWITCH_BIT)
   {
     Serial.println("LIM");
-    xEventGroupClearBits(interactEG, LIMIT_SWITCH_BIT);
+    xEventGroupClearBits(intEG, LIMIT_SWITCH_BIT);
   }
   if (curBits & PHOTO_RESIETOR_BIT)
   {
     Serial.println("PHR");
-    xEventGroupClearBits(interactEG, PHOTO_RESIETOR_BIT);
+    xEventGroupClearBits(intEG, PHOTO_RESIETOR_BIT);
   }
 }

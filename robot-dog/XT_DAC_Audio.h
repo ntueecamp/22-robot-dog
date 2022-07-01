@@ -17,7 +17,7 @@
 
 
 #pragma once
-// #include "MusicDefinitions.h"
+#include "MusicDefinitions.h"
 #include <stdint.h>
 
 #define BUFFER_SIZE_DEFAULT 4000 			    // Size of buffer to store data to send to DAC. 3 bytes minimum!
