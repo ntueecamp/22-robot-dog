@@ -129,7 +129,7 @@ TaskHandle_t initPhotoResistor(const uint8_t& pin, const uint16_t& threshold, co
 
 void handleSound(void* argv)
 {
-    XT_Wav_Class sound = woofSound(low_woof);
+    XT_Wav_Class woofSound(low_woof);
     XT_DAC_Audio_Class DacAudio(*((uint8_t*)argv), 0);
 
     EventBits_t curBits;
@@ -143,17 +143,18 @@ void handleSound(void* argv)
 
         if (curBits & PHOTO_RESIETOR_BIT)
         {
-            // start sound playing
-            DacAudio.play(&woofSound);  // register to play
+#ifdef DEBUG
+            Serial.println("PHR");
+#endif // DEBUG
 
-            uint32_t period = 100 / portTICK_PERIOD_MS;
-            TickType_t lastWakeTime = 0;
+            // start sound playing
+            DacAudio.Play(&woofSound);  // register to play
+
             while (woofSound.Playing)   // loop until the sound ends
             {
-                lastWakeTime = xTaskGetTickCount();
                 DacAudio.FillBuffer();  // fill buffer to DAC, buffer size is 4000
                                         // we need to call this function at least (SAMPLE_RATE / 4000) times per second
-                vTaskDelayUntil(&lastWakeTime, period);   // times per second
+                taskYIELD();
             }
             DacAudio.StopAllSounds();
             // end sound playing
@@ -195,14 +196,14 @@ void handleLED(void* argv)
 
     // TODO: move patternsand Strings to a seperate .h file
     const String text = "Robot_Dog";
-    const byte pattern = { B00001100,
-                           B00011110,
-                           B00111110,
-                           B01111100,
-                           B01111100,
-                           B00111110,
-                           B00011110,
-                           B00001100 };   // be aware of the direction
+    const byte pattern[8] = { B00001100,
+                              B00011110,
+                              B00111110,
+                              B01111100,
+                              B01111100,
+                              B00111110,
+                              B00011110,
+                              B00001100 };   // be aware of the direction
 
     LedMatrix ledMatrix(1, sck, miso, mosi, cs);
     ledMatrix.init();
@@ -210,7 +211,7 @@ void handleLED(void* argv)
     // display pattern
     ledMatrix.clear();
     for (int i = 0; i < 8; i++)
-        ledMatrix.setColum(i, pattern[i]);
+        ledMatrix.setColumn(i, pattern[i]);
     ledMatrix.commit();
 
     EventBits_t curBits;
@@ -224,12 +225,15 @@ void handleLED(void* argv)
 
         if (curBits & CAP_TOUCH_BIT)
         {
+#ifdef DEBUG
+            Serial.println("CAP");
+#endif // DEBUG
+
             ledMatrix.setText(text);
 
-            uint32_t period = 500 / portTICK_PERIOD_MS;    // TBD
+            uint32_t period = 100 / portTICK_PERIOD_MS;    // TBD
             TickType_t lastWakeTime = 0;
-            int length = 8 * (text.length() + 1);
-            for (int i = 0; i < 8 * length; i++)
+            for (int i = 0; i < 8 * text.length() - 1; i++)
             {
                 lastWakeTime = xTaskGetTickCount();
                 ledMatrix.clear();
@@ -244,10 +248,15 @@ void handleLED(void* argv)
         }
         else if (curBits & LIMIT_SWITCH_BIT)
         {
+#ifdef DEBUG
+            Serial.println("LIM");
+#endif // DEBUG
+
             ledMatrix.clear();
             for (int i = 0; i < 8; i++)
-                ledMatrix.setColum(i, pattern[i]);
+                ledMatrix.setColumn(i, pattern[i]);
             ledMatrix.commit();
+            vTaskDelay(500 / portTICK_PERIOD_MS);
             
             xEventGroupClearBits(interactEG, LIMIT_SWITCH_BIT);
         }

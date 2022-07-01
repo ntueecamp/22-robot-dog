@@ -38,20 +38,20 @@ public:
    * Should be put in setup(){}
    */
   void set_text(char input_text[10]);
-  
+
   /*
    * Set the pattern to print
    * Input should be a array containing 8 bytes
    * Can be put in setup(){} or loop(){}
    */
   void set_pattern(byte input_pattern[9]);
-  
+
   /*
    * Print the text
    * It will delay by itself (just put LED01.print_text() in loop(){} ).
    */
   void print_text();
-  
+
   /*
    * Print the pattern
    * It will not delay by itself(code may look like: 
