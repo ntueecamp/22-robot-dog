@@ -3,12 +3,12 @@
 
 #include "Arduino.h"
 #include <SPI.h>
-#include "LedMatrix.h" //need to install https://github.com/nhatuan84/esp32-led-matrix
+#include "LedMatrix.h"
 
-#define NUMBER_OF_DEVICES 1
+#define NUMBER_OF_DEVICES 1 
 #define CS_PIN 5
 #define CLK_PIN 18
-#define MISO_PIN 19
+#define MISO_PIN 22 
 #define MOSI_PIN 23
 
 
