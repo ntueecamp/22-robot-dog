@@ -80,11 +80,10 @@ void handlePhotoResistor(void* argv)
     // free(argv);
 
     period = period / portTICK_PERIOD_MS;
-    TickType_t lastWakeTime = 0;
+    TickType_t lastWakeTime = xTaskGetTickCount();
 
     while (true)
     {
-        lastWakeTime = xTaskGetTickCount();
         if (analogRead(pin) < threshold)
             xEventGroupSetBits(interactEG, PHOTO_RESIETOR_BIT);
         
