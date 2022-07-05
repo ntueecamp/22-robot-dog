@@ -86,11 +86,10 @@ void handlePhotoResistor(void* argv)
     // free(argv);
 
     period = period / portTICK_PERIOD_MS;
-    TickType_t lastWakeTime = 0;
+    TickType_t lastWakeTime = xTaskGetTickCount();
 
     while (true)
     {
-        lastWakeTime = xTaskGetTickCount();
         if (analogRead(pin) < threshold)
             xEventGroupSetBits(interactEG, PHOTO_RESIETOR_BIT);
         
@@ -232,10 +231,9 @@ void handleLED(void* argv)
             ledMatrix.setText(text);
 
             uint32_t period = 100 / portTICK_PERIOD_MS;    // TBD
-            TickType_t lastWakeTime = 0;
+            TickType_t lastWakeTime = xTaskGetTickCount();
             for (int i = 0; i < 8 * text.length() - 1; i++)
             {
-                lastWakeTime = xTaskGetTickCount();
                 ledMatrix.clear();
                 ledMatrix.scrollTextLeft();
                 ledMatrix.drawText();
