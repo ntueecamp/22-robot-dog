@@ -36,7 +36,7 @@
 												// Use the routine MaxBufferUsage in your main loop to output the max
 												// buffer memory (via serial monitor) that your loop is using, you can
 												// then set you buffer memory very precisely
-#define BytesPerSec	32000						// The rate at which bytes are sent to the DAC, note that the max
+#define BytesPerSec 24000						// The rate at which bytes are sent to the DAC, note that the max
 												// sample rate however is 44100Khz, this higher sampling rate allows
 												// for samples to be increased in pitch. If a 44100 rate then the max
 												// would be 3 x the pitch.
