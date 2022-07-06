@@ -318,13 +318,19 @@ XT_DAC_Audio_Class::XT_DAC_Audio_Class(uint8_t TheDacPin, uint8_t TimerNo,uint16
 	InitSineValues();								// create our table of sine values for our special circular
 													// angles of 0 - 255 "DAC Degrees". Speeds things up to if
 													// you pre-calculate
-	// Set up interrupt routine
-	timer = timerBegin(TimerNo, 80, true);          // use timer TimerNo, pre-scaler is 80 (divide by 8000), count up
-	timerAttachInterrupt(timer, &onTimer, true);    // P3= edge triggered
-	timerAlarmWrite(timer, 20, true);               // will trigger 250,000 times per second,
-	timerAlarmEnable(timer);                        // enable
-	delay(1);                             			// Allow system to settle, otherwise garbage can play for first second
+	// // Set up interrupt routine
+	// timer = timerBegin(TimerNo, 80, true);          // use timer TimerNo, pre-scaler is 80 (divide by 8000), count up
+	// timerAttachInterrupt(timer, &onTimer, true);    // P3= edge triggered
+	// timerAlarmWrite(timer, 20, true);               // will trigger 250,000 times per second,
+	// timerAlarmEnable(timer);                        // enable
+	// delay(1);                             			// Allow system to settle, otherwise garbage can play for first second
 
+	timer = timerBegin(TimerNo, (80000000 / 10) / BytesPerSec, true);			// timer will tick at 160 kHz, original clock is 80 MHz
+	// timer = timerBegin(TimerNo, 500, true);			// timer will tick at 160 kHz, original clock is 80 MHz
+	timerAttachInterrupt(timer, &onTimer, true);
+	timerAlarmWrite(timer, 10, true);				// call onTimer every 10 ticks
+	timerAlarmEnable(timer);
+	delay(1);
 }
 
 
