@@ -9,6 +9,7 @@
 #define DEBUG
 
 #include "Interact.h"
+#include "Follow.h"
 
 #define CAP_TOUCH_PIN      4
 #define LIMIT_SWITCH_PIN   12

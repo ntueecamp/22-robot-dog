@@ -1,19 +1,23 @@
 #ifndef _RADAR_H_
 #define _RADAR_H_
 
-#include <Arduino.h>
-#include "Servo.h"
+#include "ESP32Servo.h"
 
 // constants
 #define TRIGPIN 27
 #define ECHOPIN 14
 #define RADARSERVOPIN 13
 
-#define ULTRASONIC_TIMEOUT 150  // ms
+#define ULTRASONIC_TIMEOUT 30  // ms
 #define RADARDELAYTIME 120      // ms
 
-#define CENTERANGLE 90   // degrees
-#define ROTATEANGLE 30  // degrees
+#define CENTERANGLE 0
+#define LEFT_HALF_ROTATEANGLE 0.26
+#define RIGHT_HALF_ROTATEANGLE 0.31
+
+#define DEFAULT_NECK_CHANNEL 2
+#define NECKSERVO_MIN_US 480
+#define NECKSERVO_MAX_US 2380
 
 #define THRESHOLD 100  // cm
 
@@ -30,7 +34,7 @@ class Radar {
 
     // get mean distance from robot dog to its owner
     // value from 0 to threshold
-    int getDis();
+    double getDis();
 
     // get results of sensing if there're sth in each direction
     // using every bit of the binary number to show if there're sth
@@ -46,28 +50,29 @@ class Radar {
 
    private:
     // servo of radar
-    Servo servo;
+    ESP32Servo servo;
 
     // distance array
-    int curDis[5];
-    int preDis[5];
+    double curDis[5];
+    double preDis[5];
 
     // ultra-sonic measuring
-    int disMeasuring();
+    double disMeasuring();
 
     // data calculate
     void calculate();
 
     // mean distance from robot dog to its owner
-    float meanDis;
+    double meanDis;
     // use a binary number to presents sth in the direction
     short direction;
 
     // current angle of radar
-    int angle;
+    float angle;
 
     // delta angle of radar
-    int deltaAngle;
+    float deltaAngle;
+    double minDis;
 };
 
 #endif /* _RADAR_H_ */
