@@ -6,8 +6,8 @@
 
 #define DEFAULT_LEFT_CHANNEL  0
 #define DEFAULT_RIGHT_CHANNEL 1
-#define DEFAULT_LEFT_PIN      18
-#define DEFAULT_RIGHT_PIN     19
+#define DEFAULT_LEFT_PIN      15
+#define DEFAULT_RIGHT_PIN     2
 
 #define LEFT_MIN_US           979
 #define LEFT_MAX_US           1979
