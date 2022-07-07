@@ -9,6 +9,11 @@
 #define DEFAULT_LEFT_PIN      18
 #define DEFAULT_RIGHT_PIN     19
 
+#define LEFT_MIN_US           979
+#define LEFT_MAX_US           1979
+#define RIGHT_MIN_US          979
+#define RIGHT_MAX_US          1979
+
 
 class Leg {
 
@@ -19,13 +24,10 @@ private:
   int leftChannel, rightChannel;
   int leftPin, rightPin;
 
-  void _initialize();
-
 public:
 
   // set channel and pin with specified or default values
   void initialize();
-  void initialize(double _leftMinUs, double _leftMaxUs, double _rightMinUs, double _rightMaxUs);
 
   // set servo speed from -1.0 to 1.0
   void write(double leftR, double rightR);
