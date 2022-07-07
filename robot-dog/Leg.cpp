@@ -1,23 +1,13 @@
 #include "Leg.h"
 
-
-void Leg::_initialize() {
+void Leg::initialize() {
   leftPin = DEFAULT_LEFT_PIN;
   rightPin = DEFAULT_RIGHT_PIN;
   leftChannel = DEFAULT_LEFT_CHANNEL;
   rightChannel = DEFAULT_RIGHT_CHANNEL;
-}
 
-void Leg::initialize() {
-  _initialize();
-  leftServo.initialize(leftChannel, leftPin);
-  rightServo.initialize(rightChannel, rightPin);
-}
-
-void Leg::initialize(double _leftMinUs, double _leftMaxUs, double _rightMinUs, double _rightMaxUs) {
-  _initialize();
-  leftServo.initialize(leftChannel, leftPin, _leftMinUs, _leftMaxUs);
-  rightServo.initialize(rightChannel, rightPin, _rightMinUs, _rightMaxUs);
+  leftServo.initialize(leftChannel, leftPin, LEFT_MIN_US, RIGHT_MAX_US);
+  rightServo.initialize(rightChannel, rightPin, RIGHT_MIN_US, RIGHT_MAX_US);
 }
 
 void Leg::write(double leftR, double rightR) {
