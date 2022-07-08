@@ -10,12 +10,16 @@
 
 #include "Interact.h"
 #include "Follow.h"
+#include "Microphone.h"
 
 #define CAP_TOUCH_PIN      4
 #define LIMIT_SWITCH_PIN   12
 #define PHOTO_RESISTOR_PIN 32
 
 #define SOUND_PIN          25
+
+#define MIC_PIN            34
+#define ADC_CHANNEL        ADC1_CHANNEL_6   // GPIO 34
 
 #define SCK_PIN            18    // CLK on LED
 #define MISO_PIN           19    // not used
@@ -40,6 +44,9 @@ void setup() {
   
   // follow
   initFollow();
+
+  // microphone
+  initMicrophone(MIC_PIN, ADC_CHANNEL);
 }
 
 void loop() {

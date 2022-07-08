@@ -5,7 +5,7 @@
 
 // I2S_NUM_0
 #define MIC_PIN     34
-#define ADC_CHANNEL ADC1_GPIO34_CHANNEL
+#define ADC_CHANNEL ADC1_CHANNEL_6   // GPIO 34
 
 #define TRANS_BUF_LEN 16000
 
@@ -21,7 +21,6 @@ void reader(void* argv)
   // The 4 high bits are the channel
   // real value = ( ((uint16_t)(buff[i + 1] & 0xf) << 8) | (buff[i + 0]) )
 
-  uint8_t* buffer = (uint8_t*)micBuffer;
   int readCount = 0;
   size_t bytes_read;
 
@@ -36,8 +35,8 @@ void reader(void* argv)
     for(int i = 0; i < bytes_read; i += 2)
     {
       if(readCount < TRANS_BUF_LEN)
-        transBuffer[readCount++] = (buffer1[i + 1] & 0xF) << 4) | (buffer1[i] >> 4);   // rearrange bits and convert to 8-bit
-      // Serial.printf("%03x ", ((uint16_t)(buffer1[i + 1] & 0xF) << 8) | buffer1[i]);
+        transBuffer[readCount++] = ((micBuffer[i + 1] & 0xF) << 4) | (micBuffer[i] >> 4);   // rearrange bits and convert to 8-bit
+      // Serial.printf("%03x ", ((micBuffer[i + 1] & 0xF) << 4) | (micBuffer[i] >> 4) );
       // if ((i + 2) % 64 == 0)
       //  Serial.println();
     }
@@ -67,7 +66,7 @@ void setup() {
   //install and start i2s driver
   i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
   //init ADC pad
-  i2s_set_adc_mode(ADC_UNIT_1, ADC1_CHANNEL_4);
+  i2s_set_adc_mode(ADC_UNIT_1, ADC_CHANNEL);
 
   xTaskCreatePinnedToCore(reader, "ADC_reader", 2048, micBuffer, 1, NULL, 1);
 }
