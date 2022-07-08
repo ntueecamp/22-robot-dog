@@ -40,7 +40,9 @@ void handleMicrophone(void* argv)
             #endif // DEBUG
             }
         }
-        xTaskNotifyGiveIndexed(audioProcessorHandle, 0);
+
+        if (audioProcessorHandle != NULL)
+            xTaskNotifyGiveIndexed(audioProcessorHandle, 0);
     }
 
     // should never get here
