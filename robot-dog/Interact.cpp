@@ -142,9 +142,9 @@ void handleSound(void* argv)
 
         if (curBits & PHOTO_RESIETOR_BIT)
         {
-#ifdef DEBUG
+        #ifdef DEBUG
             Serial.println("PHR");
-#endif // DEBUG
+        #endif // DEBUG
 
             // start sound playing
             DacAudio.Play(&woofSound);  // register to play
@@ -224,9 +224,9 @@ void handleLED(void* argv)
 
         if (curBits & CAP_TOUCH_BIT)
         {
-#ifdef DEBUG
+        #ifdef DEBUG
             Serial.println("CAP");
-#endif // DEBUG
+        #endif // DEBUG
 
             ledMatrix.setText(text);
 
@@ -246,9 +246,9 @@ void handleLED(void* argv)
         }
         else if (curBits & LIMIT_SWITCH_BIT)
         {
-#ifdef DEBUG
+        #ifdef DEBUG
             Serial.println("LIM");
-#endif // DEBUG
+        #endif // DEBUG
 
             ledMatrix.clear();
             for (int i = 0; i < 8; i++)
