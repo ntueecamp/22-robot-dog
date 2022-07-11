@@ -20,6 +20,7 @@ void handleMicrophone(void* argv)
                                      pdTRUE,    // true -> clear the value before returning, won't affect returned value
                                      portMAX_DELAY);
         
+        index = 0;
         while (index < TRANS_BUF_LEN)
         {
             samplesAcquired = TRANS_BUF_LEN - index;
