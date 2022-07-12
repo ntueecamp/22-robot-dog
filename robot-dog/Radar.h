@@ -9,7 +9,7 @@
 #define RADARSERVOPIN 13
 
 #define ULTRASONIC_TIMEOUT 30  // ms
-#define RADARDELAYTIME 120      // ms
+#define RADARDELAYTIME 120     // ms
 
 #define CENTERANGLE 0
 #define LEFT_HALF_ROTATEANGLE 0.26
@@ -19,7 +19,10 @@
 #define NECKSERVO_MIN_US 480
 #define NECKSERVO_MAX_US 2380
 
-#define THRESHOLD 100  // cm
+// THRESHOLD is the distance for dog to decide moving forward or backward
+// _THRESHOLD is the effective distance which is to determine if owner is there
+#define THRESHOLD 25    // cm
+#define _THRESHOLD 4 * THRESHOLD  // cm
 
 class Radar {
    public:
@@ -53,8 +56,7 @@ class Radar {
     ESP32Servo servo;
 
     // distance array
-    double curDis[5];
-    double preDis[5];
+    double Dis[5];
 
     // ultra-sonic measuring
     double disMeasuring();

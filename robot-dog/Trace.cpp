@@ -30,14 +30,12 @@ void Trace::Move() {
     // compute base velocity according to the min distance
     // to make the base velocity be negative to move backward when the owner is too close 
     // to make the base velocity be smaller then 1.0
-    baseVel = (dis - THRESHOLD/4)/THRESHOLD;
+    baseVel = (dis - THRESHOLD)/_THRESHOLD;
 
-    // make base velocity be half when the dog would move forward
-    // make base velocity be twice when the dog would move backward
-    // the operation is to make the dog move more smoothly
+    // kp for moving forward and backward
     if(baseVel > 0)
-      baseVel /= 2;
-    else baseVel *= 2;
+      baseVel *= KP_FORWARD;
+    else baseVel *= KP_BACKWARD;
 
     // get the direction of the owner
     dir = radar.getDir();
@@ -55,17 +53,17 @@ void Trace::Move() {
     // 1. avoid one of the wheel not reverse rotation
     // 2. to make the dog to at least move forward when turning
     //    both side of the wheel need to have a lower bound velocity in absolute value
-    //    the lower bound will be +/- 0.22
+    //    the lower bound will be +/- MIN_VEL
     if(baseVel > 0){
       if(baseVel + deltaVel > 0) leftVel = baseVel + deltaVel;
       if(baseVel - deltaVel > 0) rightVel = baseVel - deltaVel;
-      leftVel = max(leftVel, 0.22);
-      rightVel = max(rightVel, 0.22);
+      leftVel = max(leftVel, MIN_VEL);
+      rightVel = max(rightVel, MIN_VEL);
     }else if(baseVel < 0){
       if(baseVel + deltaVel < 0) leftVel = baseVel + deltaVel;
       if(baseVel - deltaVel < 0) rightVel = baseVel - deltaVel;
-      leftVel = min(leftVel, -0.22);
-      rightVel = min(rightVel, -0.22);
+      leftVel = min(leftVel, -MIN_VEL);
+      rightVel = min(rightVel, -MIN_VEL);
     }
     leg.write(leftVel, rightVel);
 }
