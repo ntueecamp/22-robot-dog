@@ -12,6 +12,15 @@
 #define R         0.5
 #define RR        0.7
 
+// kp for moving forward and backward
+#define KP_FORWARD  0.5
+#define KP_BACKWARD 2
+
+// MIN VELOCITY for the wheel to rotate successfully 
+// which depends on the weight of load and the friction between the dog and the floor
+// has absolute value lower than 1.0
+#define MIN_VEL 0.35
+
 class Trace {
     public:
         Trace();
