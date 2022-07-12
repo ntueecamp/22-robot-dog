@@ -41,7 +41,7 @@ void setup() {
   // interact outputs
   initSound(SOUND_PIN);
   initLED(SCK_PIN, MISO_PIN, MOSI_PIN, CS_PIN);
-  
+
   // follow
   initFollow();
 
