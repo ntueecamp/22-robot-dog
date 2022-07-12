@@ -36,8 +36,7 @@ public:
   void initialize(int _channel, int _servoPin);
   void initialize(int _channel, int _servoPin, double _minUs, double _maxUs);
 
-  // set servo speed
-  // range from -1 to 1
+  // set servo speed range from -1 to 1
   void write(double setPoint);
 
 };

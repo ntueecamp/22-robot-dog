@@ -9,10 +9,10 @@
 #define DEFAULT_LEFT_PIN      15
 #define DEFAULT_RIGHT_PIN     2
 
-#define LEFT_MIN_US           979
-#define LEFT_MAX_US           1979
-#define RIGHT_MIN_US          979
-#define RIGHT_MAX_US          1979
+#define LEFT_MIN_US           500
+#define LEFT_MAX_US           2500
+#define RIGHT_MIN_US          500
+#define RIGHT_MAX_US          2500
 
 
 class Leg {
@@ -30,7 +30,7 @@ public:
   void initialize();
 
   // set servo speed from -1.0 to 1.0
-  void write(double leftR, double rightR);
+  void write(double leftSetPoint, double rightSetPoint);
   
 };
 

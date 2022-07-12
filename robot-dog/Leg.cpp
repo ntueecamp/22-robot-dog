@@ -10,8 +10,8 @@ void Leg::initialize() {
   rightServo.initialize(rightChannel, rightPin, RIGHT_MIN_US, RIGHT_MAX_US);
 }
 
-void Leg::write(double leftR, double rightR) {
+void Leg::write(double leftSetPoint, double rightSetPoint) {
   // servos are placed in different rotation, so one of them should be reversed
-  leftServo.write(leftR * (1.0));
-  rightServo.write(rightR * (-1.0));
+  leftServo.write(leftSetPoint * (1.0));
+  rightServo.write(rightSetPoint * (-1.0));
 }
