@@ -9,12 +9,44 @@
 
 uint8_t audioInputBuffer[TRANS_BUF_LEN];
 
+int recordSound(uint8_t* buf, const int& length)
+{
+    uint8_t* micBuffer = (uint8_t*)malloc(2 * I2S_BUFF_LEN);    // need 16-bit (2 bytes) for each sample, but use uint8_t for easier indexing
+    size_t samplesAcquired = 0, bytesRead = 0;
+    int index = 0;
+
+    while (index < length)
+    {
+        samplesAcquired = length - index;
+        if (samplesAcquired > I2S_BUFF_LEN)
+            samplesAcquired = I2S_BUFF_LEN;
+
+        i2s_adc_enable(I2S_NUM_0);
+        i2s_read(I2S_NUM_0, micBuffer, samplesAcquired * 2, &bytesRead, portMAX_DELAY);
+        i2s_adc_disable(I2S_NUM_0);
+
+        for (int i = 0; i < bytesRead; i += 2)
+        {
+            buf[index++] = ((micBuffer[i + 1] & 0xF) << 4) | (micBuffer[i] >> 4);   // rearrange bits and convert to 8-bit
+#ifdef DEBUG
+            Serial.printf("%03x ", (((micBuffer[i + 1] & 0xF) << 4) | (micBuffer[i] >> 4)));
+            if ((i + 2) % 64 == 0)
+                Serial.println();
+#endif // DEBUG
+        }
+    }
+
+    free(micBuffer);
+
+    return index;
+}
+
 void handleMicrophone(void* argv)
 {
     TaskHandle_t audioProcessorHandle = *((TaskHandle_t*)argv);
-    uint8_t micBuffer[2 * I2S_BUFF_LEN];    // need 16-bit for each sample, but use uint8_t for easier indexing
-    size_t samplesAcquired, bytesRead;      // each sample has two bytes (16-bit)
-    int index = 0;
+    // uint8_t micBuffer[2 * I2S_BUFF_LEN];            // need 16-bit for each sample, but use uint8_t for easier indexing
+    // size_t samplesAcquired = 0, bytesRead = 0;      // each sample has two bytes (16-bit)
+    // int index = 0;
 
     while (true)
     {
@@ -23,28 +55,8 @@ void handleMicrophone(void* argv)
                                      pdTRUE,    // true -> clear the value before returning, won't affect returned value
                                      portMAX_DELAY);
         
-        index = 0;
-        while (index < TRANS_BUF_LEN)
-        {
-            samplesAcquired = TRANS_BUF_LEN - index;
-            if (samplesAcquired > I2S_BUFF_LEN)
-                samplesAcquired = I2S_BUFF_LEN;
-
-            i2s_adc_enable(I2S_NUM_0);
-            i2s_read(I2S_NUM_0, micBuffer, samplesAcquired * 2, &bytesRead, portMAX_DELAY);
-            i2s_adc_disable(I2S_NUM_0);
-
-            for (int i = 0; i < bytesRead; i += 2)
-            {
-                audioInputBuffer[index++] = ((micBuffer[i + 1] & 0xF) << 4) | (micBuffer[i] >> 4);   // rearrange bits and convert to 8-bit
-            #ifdef DEBUG
-                Serial.printf("%03x ", (((micBuffer[i + 1] & 0xF) << 4) | (micBuffer[i] >> 4)) );
-                if ((i + 2) % 64 == 0)
-                    Serial.println();
-            #endif // DEBUG
-            }
-        }
-
+        recordSound(audioInputBuffer, TRANS_BUF_LEN);
+        
         if (audioProcessorHandle != NULL)
             xTaskNotifyGiveIndexed(audioProcessorHandle, 0);
     }

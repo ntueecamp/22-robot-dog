@@ -17,6 +17,7 @@ extern uint8_t audioInputBuffer[TRANS_BUF_LEN];
  * @param pin The pin to be attached to the microphone
  *            Available pins: 32, 33, 34, 35, 36, 37, 38, 39
  */
+int recordSound(uint8_t* buf, const int& length);
 void handleMicrophone(void* argv);
 TaskHandle_t initMicrophone(const uint8_t& pin, const adc1_channel_t& channel, const TaskHandle_t& audioProcessorHandle = NULL);
 
