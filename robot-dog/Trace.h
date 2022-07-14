@@ -1,6 +1,8 @@
 #ifndef _TRACE_H_
 #define _TRACE_H_
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "Radar.h"
 #include "Leg.h"
 
@@ -36,5 +38,12 @@ class Trace {
         Leg leg;
         Radar radar;
 };
+
+/**
+ * @brief Init function and handler for following
+ *
+ */
+void handleFollow(void* argv);
+TaskHandle_t initFollow();
 
 #endif

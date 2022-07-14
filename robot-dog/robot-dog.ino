@@ -9,7 +9,7 @@
 #define DEBUG
 
 #include "Interact.h"
-#include "Follow.h"
+#include "Trace.h"
 #include "Microphone.h"
 
 #define CAP_TOUCH_PIN      4

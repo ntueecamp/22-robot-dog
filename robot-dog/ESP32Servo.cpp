@@ -1,5 +1,6 @@
 #include "ESP32Servo.h"
 
+#include <Arduino.h>
 
 void ESP32Servo::initialize(int _channel, int _servoPin) {
   _initialize(_channel, _servoPin, DEFAULT_MIN_US, DEFAULT_MAX_US);
@@ -31,4 +32,3 @@ void ESP32Servo::write(double setPoint) {
 double ESP32Servo::_fmap(double val, double min1, double max1, double min2, double max2) {
   return (val - min1) / (max1 - min1) * (max2 - min2) + min2;
 }
-

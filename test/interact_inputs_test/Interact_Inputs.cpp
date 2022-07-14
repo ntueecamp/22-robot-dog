@@ -85,7 +85,7 @@ void handlePhotoResistor(void* argv)
     while (true)
     {
         if (analogRead(pin) < threshold)
-            xEventGroupSetBits(interactEG, PHOTO_RESIETOR_BIT);
+            xEventGroupSetBits(interactEG, PHOTO_RESISTOR_BIT);
         
         vTaskDelayUntil(&lastWakeTime, period);
     }
