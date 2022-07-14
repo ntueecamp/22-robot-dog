@@ -9,12 +9,10 @@
 
 #include "Interact.h"
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/event_groups.h"
 #include "src/esp32-led-matrix/LedMatrix.h"
 #include "src/XT_DAC_Audio/XT_DAC_Audio.h"
 #include "RobotDog.h"
+#include "LEDContent.h"
 #include "woof.h"
 #include "low_woof.h"
 
@@ -117,15 +115,15 @@ void handleSound(void* argv)
     while (true)
     {
         curBits = xEventGroupWaitBits( dogEventGroup,
-                                       PHOTO_RESISTOR_BIT,    // CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESISTOR_BIT
+                                       CAP_TOUCH_BIT,    // CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESISTOR_BIT
                                        pdFALSE,   // true -> clear the bits before returning, won't affect returned value
                                        pdFALSE,   // true -> wait for all
                                        portMAX_DELAY);
 
-        if (curBits & PHOTO_RESISTOR_BIT)
+        if (curBits & CAP_TOUCH_BIT)
         {
         #ifdef DEBUG
-            Serial.println("PHR");
+            Serial.println("CAP");
         #endif // DEBUG
 
             // start sound playing
@@ -140,7 +138,7 @@ void handleSound(void* argv)
             DacAudio.StopAllSounds();
             // end sound playing
 
-            xEventGroupClearBits(dogEventGroup, PHOTO_RESISTOR_BIT);
+            xEventGroupClearBits(dogEventGroup, CAP_TOUCH_BIT);
         }
     }
 
@@ -174,69 +172,62 @@ void handleLED(void* argv)
     uint8_t mosi = ((uint8_t*)argv)[2];
     uint8_t   cs = ((uint8_t*)argv)[3];
 
-    // TODO: move patternsand Strings to a seperate .h file
-    const String text = "Robot_Dog";
-    const byte pattern[8] = { B00001100,
-                              B00011110,
-                              B00111110,
-                              B01111100,
-                              B01111100,
-                              B00111110,
-                              B00011110,
-                              B00001100 };   // be aware of the direction
-
+    int curDisplay = 0;     // 0 -> pattern, 1 -> text
     LedMatrix ledMatrix(1, sck, miso, mosi, cs);
     ledMatrix.init();
     ledMatrix.setIntensity(15);   // 0-15
+
     // display pattern
     ledMatrix.clear();
     for (int i = 0; i < 8; i++)
-        ledMatrix.setColumn(i, pattern[i]);
+        ledMatrix.setColumn(i, ledPattern[i]);
     ledMatrix.commit();
+    curDisplay = 0;
 
     EventBits_t curBits;
     while (true)
     {
         curBits = xEventGroupWaitBits( dogEventGroup,
-                                       CAP_TOUCH_BIT | LIMIT_SWITCH_BIT,    // CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESISTOR_BIT
+                                       LIMIT_SWITCH_BIT,    // CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESISTOR_BIT
                                        pdFALSE,   // true -> clear the bits before returning, won't affect returned value
                                        pdFALSE,   // true -> wait for all
                                        portMAX_DELAY);
 
-        if (curBits & CAP_TOUCH_BIT)
-        {
-        #ifdef DEBUG
-            Serial.println("CAP");
-        #endif // DEBUG
-
-            ledMatrix.setText(text);
-
-            uint32_t period = 100 / portTICK_PERIOD_MS;    // TBD
-            TickType_t lastWakeTime = xTaskGetTickCount();
-            for (int i = 0; i < 8 * text.length() - 1; i++)
-            {
-                ledMatrix.clear();
-                ledMatrix.scrollTextLeft();
-                ledMatrix.drawText();
-                ledMatrix.commit();
-
-                vTaskDelayUntil(&lastWakeTime, period);   // times per second
-            }
-
-            xEventGroupClearBits(dogEventGroup, CAP_TOUCH_BIT);
-        }
-        else if (curBits & LIMIT_SWITCH_BIT)
+        if (curBits & LIMIT_SWITCH_BIT)
         {
         #ifdef DEBUG
             Serial.println("LIM");
         #endif // DEBUG
 
-            ledMatrix.clear();
-            for (int i = 0; i < 8; i++)
-                ledMatrix.setColumn(i, pattern[i]);
-            ledMatrix.commit();
-            vTaskDelay(500 / portTICK_PERIOD_MS);
-            
+            if (curDisplay == 0)
+            {
+                // display text
+                ledMatrix.setText(ledText);
+
+                uint32_t period = 100 / portTICK_PERIOD_MS;    // TBD
+                TickType_t lastWakeTime = xTaskGetTickCount();
+                for (int i = 0; i < 8 * ledText.length() - 1; i++)
+                {
+                    ledMatrix.clear();
+                    ledMatrix.scrollTextLeft();
+                    ledMatrix.drawText();
+                    ledMatrix.commit();
+
+                    vTaskDelayUntil(&lastWakeTime, period);   // times per second
+                }
+                curDisplay = 1;
+            }
+            else if (curDisplay == 1)
+            {
+                // display pattern
+                ledMatrix.clear();
+                for (int i = 0; i < 8; i++)
+                    ledMatrix.setColumn(i, ledPattern[i]);
+                ledMatrix.commit();
+                vTaskDelay(500 / portTICK_PERIOD_MS);
+                curDisplay = 0;
+            }
+
             xEventGroupClearBits(dogEventGroup, LIMIT_SWITCH_BIT);
         }
     }

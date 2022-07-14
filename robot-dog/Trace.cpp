@@ -1,8 +1,7 @@
 #include "Trace.h"
 
 #include <Arduino.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+#include "RobotDog.h"
 
 Trace::Trace() {
 }
@@ -76,10 +75,33 @@ void handleFollow(void* argv)
   Trace dog;
   dog.init();
   vTaskDelay(RADARDELAYTIME / portTICK_PERIOD_MS);
+  EventBits_t curBits;
 
   while (true)
   {
+    curBits = xEventGroupGetBits(dogEventGroup);
+    if (curBits & PHOTO_RESISTOR_BIT || !(curBits & FOLLOWING_BIT))
+    {
+      xEventGroupClearBits(dogEventGroup, FOLLOWING_BIT);
+      // dog.stop();
+      xEventGroupSetBits(dogEventGroup, FOLLOW_STOP_BIT);
+
+      curBits = xEventGroupWaitBits( dogEventGroup,
+                                     FOLLOWING_BIT,
+                                     pdFALSE,   // true -> clear the bits before returning, won't affect returned value
+                                     pdFALSE,   // true -> wait for all
+                                     portMAX_DELAY);
+      if (curBits & FOLLOWING_BIT)
+      {
+        // dog.restart();
+        xEventGroupSetBits(dogEventGroup, FOLLOWING_BIT);
+      }
+      else
+        continue;
+    }
+
     dog.Move();
+
     taskYIELD();
   }
 }
@@ -88,7 +110,7 @@ TaskHandle_t initFollow()
 {
   BaseType_t xResult;
   TaskHandle_t followTaskHandle;
-  xResult = xTaskCreate(handleFollow,
+  xResult = xTaskCreate( handleFollow,
                          "FollowHandler",
                          2048,     // stack size in words (4 bytes on ESP32), TBD
                          NULL,
@@ -97,6 +119,8 @@ TaskHandle_t initFollow()
 
   if (xResult != pdPASS)
     return NULL;
+
+  xEventGroupSetBits(dogEventGroup, FOLLOWING_BIT);
 
   return followTaskHandle;
 }

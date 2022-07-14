@@ -1,23 +1,40 @@
 #ifndef MICROPHONE_H
 #define MICROPHONE_H
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include "driver/adc.h"
+#include "driver/i2s.h"
 
-#define SAMPLE_RATE   16000
-#define TRANS_BUF_LEN 16000
+#define I2S_BUFF_LEN 1024   // no more than 1024
 
-extern uint8_t audioInputBuffer[TRANS_BUF_LEN];
+class Microphone
+{
+private:
+    uint8_t pin;
+    adc1_channel_t channel;
+    uint32_t sampleRate;
 
-/**
- * @brief Init function and handler of audio input from microphone
- *        Microphone ustilizes esp32's built-in I2S_ADC on I2S0
- * 
- * @param pin The pin to be attached to the microphone
- *            Available pins: 32, 33, 34, 35, 36, 37, 38, 39
- */
-void handleMicrophone(void* argv);
-TaskHandle_t initMicrophone(const uint8_t& pin, const adc1_channel_t& channel, const TaskHandle_t& audioProcessorHandle = NULL);
+    uint8_t* micBuffer;
+
+public:
+    /**
+     * @brief Construct a new Microphone object
+     * 
+     * @param _pin The pin to be attached to the microphone
+     *             Available pins: 32, 33, 34, 35, 36, 37, 38, 39
+     * @param _channel The ADC channel to be used to sample the audio
+     */
+    Microphone(const uint8_t& _pin, const adc1_channel_t& _channel, const uint32_t& _sampleRate);
+    ~Microphone();
+
+    void init();
+    /**
+     * @brief Fill audio samples (8-bit) into buffer
+     * 
+     * @param buf The buffer to be filled
+     * @param length The number of samples acquired to fill
+     * @return int The number of samples filled
+     */
+    int recordAudio(uint8_t* buf, const int& length);
+};
 
 #endif // MICROPHONE_H

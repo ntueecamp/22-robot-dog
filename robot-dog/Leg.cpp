@@ -1,5 +1,6 @@
 #include "Leg.h"
 
+
 void Leg::initialize() {
   leftPin = DEFAULT_LEFT_PIN;
   rightPin = DEFAULT_RIGHT_PIN;

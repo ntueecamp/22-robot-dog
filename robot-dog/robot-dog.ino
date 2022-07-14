@@ -10,7 +10,7 @@
 
 #include "Interact.h"
 #include "Trace.h"
-#include "Microphone.h"
+#include "AudioRecognition.h"
 
 #define CAP_TOUCH_PIN      4
 #define LIMIT_SWITCH_PIN   12
@@ -46,7 +46,7 @@ void setup() {
   initFollow();
 
   // microphone
-  initMicrophone(MIC_PIN, ADC_CHANNEL);
+  initAudioRecognition(MIC_PIN, ADC_CHANNEL);
 }
 
 void loop() {
