@@ -326,7 +326,6 @@ XT_DAC_Audio_Class::XT_DAC_Audio_Class(uint8_t TheDacPin, uint8_t TimerNo,uint16
 	// delay(1);                             			// Allow system to settle, otherwise garbage can play for first second
 
 	timer = timerBegin(TimerNo, (80000000 / 10) / BytesPerSec, true);			// timer will tick at 160 kHz, original clock is 80 MHz
-	// timer = timerBegin(TimerNo, 500, true);			// timer will tick at 160 kHz, original clock is 80 MHz
 	timerAttachInterrupt(timer, &onTimer, true);
 	timerAlarmWrite(timer, 10, true);				// call onTimer every 10 ticks
 	timerAlarmEnable(timer);
@@ -458,6 +457,7 @@ XT_Wav_Class::XT_Wav_Class(const unsigned char *WavData)
 {
    // create a new wav class object
    unsigned long ofs, siz;
+
    /* Process the chunks.  "fmt " is format, "data" is the samples, ignore all else. */
    ofs = 12;
    siz = longword(WavData, 4);
