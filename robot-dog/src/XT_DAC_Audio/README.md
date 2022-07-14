@@ -1,4 +1,4 @@
-This directory was copied and modified from https://github.com/WeekendWarrior1/XTronical_XT_DAC_Audio_Mirror,
+The files in this directory was copied and modified from <https://github.com/WeekendWarrior1/XTronical_XT_DAC_Audio_Mirror>,
 which was copied and patched by WeekendWarrior1 from https://www.xtronical.com/wp-content/uploads/2019/10/XT_DAC_Audio-4_2_1.zip
 
 # XTronical_XT_DAC_Audio_Mirror

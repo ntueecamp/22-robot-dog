@@ -1,5 +1,5 @@
-#ifndef ROBOTDOG_H
-#define ROBOTDOG_H
+#ifndef ROBOT_DOG_H
+#define ROBOT_DOG_H
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
@@ -13,6 +13,7 @@
 #define LIMIT_SWITCH_BIT   (1 << 1)
 #define PHOTO_RESISTOR_BIT (1 << 2)
 #define FOLLOWING_BIT      (1 << 3)
+#define FOLLOW_STOP_BIT    (1 << 4)
 
 /**
  * @brief The event group of the robot dog
@@ -24,4 +25,4 @@ extern EventGroupHandle_t dogEventGroup;
 EventGroupHandle_t createDogEG();
 void deleteDogEG();
 
-#endif // ROBOTDOG_H
+#endif // ROBOT_DOG_H

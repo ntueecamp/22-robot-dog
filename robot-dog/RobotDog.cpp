@@ -1,7 +1,5 @@
 #include "RobotDog.h"
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/event_groups.h"
 
 EventGroupHandle_t dogEventGroup = NULL;
 
