@@ -1,45 +1,28 @@
 /**
  * @file Interact_Inputs.cpp
  * @author ntueecamp 2022 (FrSh28)
- * @brief Inplementations of functions about interactive inputs (CapTouch, LimitSwitch and PhotoResistor) of the robot dog.
- * @date 2022-06-28
+ * @brief Inplementations of functions about interaction inputs (CapTouch, LimitSwitch and PhotoResistor)
+ * @date 2022-06-30
  *
  */
 
 #include "Interact_Inputs.h"
 
-EventGroupHandle_t interactEG;
-
-EventGroupHandle_t createInteractEG()
-{
-    if (interactEG == NULL)
-        interactEG = xEventGroupCreate();
-
-    if (interactEG != NULL)
-        return interactEG;
-    else    // create failed
-        return NULL;
-}
-
-void deleteInteractEG()
-{
-    vEventGroupDelete(interactEG);
-    interactEG = NULL;
-}
+#include <Arduino.h>
+#include "Events.h"
 
 void IRAM_ATTR onCapTouchISR()
 {
     BaseType_t xHigherPriorityWoken = pdFALSE, xResult;
-    xResult = xEventGroupSetBitsFromISR(interactEG, CAP_TOUCH_BIT, &xHigherPriorityWoken);
+    xResult = xEventGroupSetBitsFromISR(dogEventGroup, CAP_TOUCH_BIT, &xHigherPriorityWoken);
     if (xResult != pdFAIL)
         portYIELD_FROM_ISR(xHigherPriorityWoken);
 }
 
 int initCapTouch(const uint8_t& pin, const uint16_t& threshold)
 {
-    if (interactEG == NULL)
-        if (createInteractEG() == NULL)   // create failed
-            return -1;
+    if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
+        return -1;
 
     touchAttachInterrupt(pin, onCapTouchISR, threshold);
 
@@ -49,16 +32,15 @@ int initCapTouch(const uint8_t& pin, const uint16_t& threshold)
 void IRAM_ATTR onLimitSwitchISR()
 {
     BaseType_t xHigherPriorityWoken = pdFALSE, xResult;
-    xResult = xEventGroupSetBitsFromISR(interactEG, LIMIT_SWITCH_BIT, &xHigherPriorityWoken);
+    xResult = xEventGroupSetBitsFromISR(dogEventGroup, LIMIT_SWITCH_BIT, &xHigherPriorityWoken);
     if (xResult != pdFAIL)
         portYIELD_FROM_ISR(xHigherPriorityWoken);
 }
 
 int initLimitSwitch(const uint8_t& pin, const int& triggerMode)
 {
-    if (interactEG == NULL)
-        if (createInteractEG() == NULL)   // create failed
-            return -1;
+    if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
+        return -1;
 
     if (triggerMode == RISING)
         pinMode(pin, INPUT_PULLDOWN);
@@ -85,7 +67,7 @@ void handlePhotoResistor(void* argv)
     while (true)
     {
         if (analogRead(pin) < threshold)
-            xEventGroupSetBits(interactEG, PHOTO_RESISTOR_BIT);
+            xEventGroupSetBits(dogEventGroup, PHOTO_RESISTOR_BIT);
         
         vTaskDelayUntil(&lastWakeTime, period);
     }
@@ -95,9 +77,8 @@ void handlePhotoResistor(void* argv)
 
 TaskHandle_t initPhotoResistor(const uint8_t& pin, const uint16_t& threshold, const uint32_t& period)
 {
-    if (interactEG == NULL)
-        if (createInteractEG() == NULL)   // create failed
-            return NULL;
+    if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
+        return NULL;
 
     //uint32_t* argv = (uint32_t*)malloc(2 * sizeof(uint32_t));
     uint32_t argv[3];
