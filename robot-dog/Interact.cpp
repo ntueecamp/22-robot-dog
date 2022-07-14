@@ -11,7 +11,7 @@
 
 #include "src/esp32-led-matrix/LedMatrix.h"
 #include "src/XT_DAC_Audio/XT_DAC_Audio.h"
-#include "RobotDog.h"
+#include "Events.h"
 #include "LEDContent.h"
 #include "woof.h"
 #include "low_woof.h"

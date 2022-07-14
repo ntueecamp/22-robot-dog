@@ -1,6 +1,6 @@
 #include "AudioRecognition.h"
 
-#include "RobotDog.h"
+#include "Events.h"
 #include "Microphone.h"
 
 uint8_t audioInputBuffer[TRANS_BUF_LEN];

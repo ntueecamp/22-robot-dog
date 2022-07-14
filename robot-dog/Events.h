@@ -1,5 +1,5 @@
-#ifndef ROBOT_DOG_H
-#define ROBOT_DOG_H
+#ifndef EVENTS_H
+#define EVENTS_H
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
@@ -25,4 +25,4 @@ extern EventGroupHandle_t dogEventGroup;
 EventGroupHandle_t createDogEG();
 void deleteDogEG();
 
-#endif // ROBOT_DOG_H
+#endif // EVENTS_H
