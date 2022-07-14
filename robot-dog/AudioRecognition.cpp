@@ -2,6 +2,7 @@
 
 #include "Events.h"
 #include "Microphone.h"
+#include "Leg.h"
 
 uint8_t audioInputBuffer[TRANS_BUF_LEN];
 
@@ -30,17 +31,52 @@ void handleAudioRecognition(void* argv)
 #ifdef DEBUG
             Serial.println("PHR");
 #endif // DEBUG
+            xEventGroupClearBits(dogEventGroup, PHOTO_RESISTOR_BIT);
 
-            // sample audio
-            mic.recordAudio(audioInputBuffer, TRANS_BUF_LEN);
+            while (true)
+            {
+                curBits = xEventGroupGetBits(dogEventGroup);
+                if (curBits & PHOTO_RESISTOR_BIT)
+                    break;
 
-            // send to NN
-            // predict
-            // broadcast event
-            vTaskDelay(2000 / portTICK_PERIOD_MS);
+                mic.recordAudio(audioInputBuffer, TRANS_BUF_LEN);
 
-            xEventGroupClearBits(dogEventGroup, PHOTO_RESISTOR_BIT | FOLLOW_STOP_BIT);
-            xEventGroupSetBits(dogEventGroup, FOLLOWING_BIT);
+                // send to NN
+                // predict
+
+                // broadcast event
+                if (false)          // forward
+                {
+                    dogLeg.write(0.8, 0.8);
+                    vTaskDelay(1000 / portTICK_PERIOD_MS);
+                    dogLeg.write(0.0, 0.0);
+                }
+                else if (false)     // backward
+                {
+                    dogLeg.write(-0.8, -0.8);
+                    vTaskDelay(1000 / portTICK_PERIOD_MS);
+                    dogLeg.write(0.0, 0.0);
+                }
+                else if (false)     // left
+                {
+                    dogLeg.write(0.4, 0.8);
+                    vTaskDelay(1000 / portTICK_PERIOD_MS);
+                    dogLeg.write(0.0, 0.0);
+                }
+                else if (false)     // right
+                {
+                    dogLeg.write(0.8, 0.4);
+                    vTaskDelay(1000 / portTICK_PERIOD_MS);
+                    dogLeg.write(0.0, 0.0);
+                }
+                else if (false)     // follow
+                {
+                    break;
+                }
+            }   // inner while
+
+            xEventGroupClearBits(dogEventGroup, FOLLOW_STOP_BIT);
+            xEventGroupSetBits(dogEventGroup, FOLLOWING_BIT | WOOF_BIT);
         }
     }
 

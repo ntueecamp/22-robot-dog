@@ -30,6 +30,9 @@ private:
 
 public:
 
+  ESP32Servo();
+  ~ESP32Servo();
+
   // specify channel and pin of led_c, and the range of servo speed
   void initialize(int _channel, int _servoPin);
   void initialize(int _channel, int _servoPin, double _minUs, double _maxUs);

@@ -73,6 +73,7 @@ void handlePhotoResistor(void* argv)
     while (true)
     {
         if (analogRead(pin) < threshold)
+        {
             xEventGroupSetBits(dogEventGroup, PHOTO_RESISTOR_BIT);
 
         vTaskDelayUntil(&lastWakeTime, period);
@@ -124,7 +125,7 @@ void handleSound(void* argv)
     while (true)
     {
         curBits = xEventGroupWaitBits( dogEventGroup,
-                                       CAP_TOUCH_BIT,    // CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESISTOR_BIT
+                                       CAP_TOUCH_BIT | WOOF_BIT,    // CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESISTOR_BIT
                                        pdFALSE,   // true -> clear the bits before returning, won't affect returned value
                                        pdFALSE,   // true -> wait for all
                                        portMAX_DELAY);
@@ -148,6 +149,26 @@ void handleSound(void* argv)
             // end sound playing
 
             xEventGroupClearBits(dogEventGroup, CAP_TOUCH_BIT);
+        }
+        else if (curBits & WOOF_BIT)
+        {
+            // set repeat, n -> play n+1 times
+            woofSound.Repeat = 1;
+            // start sound playing
+            DacAudio.Play(&woofSound);  // register to play
+
+            while (woofSound.Playing)   // loop until the sound ends
+            {
+                DacAudio.FillBuffer();  // fill buffer to DAC, buffer size is 4000
+                // we need to call this function at least (SAMPLE_RATE / 4000) times per second
+                taskYIELD();
+            }
+            DacAudio.StopAllSounds();
+            // end sound playing
+            // reset repeat
+            woofSound.Repeat = 0;
+
+            xEventGroupClearBits(dogEventGroup, WOOF_BIT);
         }
     }
 

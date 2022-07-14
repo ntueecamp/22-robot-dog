@@ -12,6 +12,10 @@ Radar::Radar() {
     deltaAngle = LEFT_HALF_ROTATEANGLE;
 }
 
+Radar::~Radar() {
+
+}
+
 void Radar::init() {
     // pin setup
     pinMode(TRIGPIN, OUTPUT);
