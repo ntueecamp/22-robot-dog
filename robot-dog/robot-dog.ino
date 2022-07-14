@@ -1,7 +1,7 @@
 /**
  * @file 22-robot-dog.ino
  * @author ntueecamp 2022
- * @brief A robot dog that can interact with people and follow their owner.
+ * @brief A robot dog that can interact with people and follow its owner.
  * @date 2022-
  * 
  */

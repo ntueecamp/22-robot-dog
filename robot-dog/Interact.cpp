@@ -9,10 +9,10 @@
 
 #include "Interact.h"
 
-#include "XT_DAC_Audio.h"
+#include "src/XT_DAC_Audio/XT_DAC_Audio.h"
 #include "woof.h"
 #include "low_woof.h"
-#include "LedMatrix.h"
+#include "src/esp32-led-matrix/LedMatrix.h"
 
 EventGroupHandle_t interactEG;
 

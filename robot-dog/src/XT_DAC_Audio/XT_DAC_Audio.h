@@ -18,7 +18,6 @@
 
 #pragma once
 #include "MusicDefinitions.h"
-#include <stdint.h>
 
 #define BUFFER_SIZE_DEFAULT 4000 			    // Size of buffer to store data to send to DAC. 3 bytes minimum!
 												// 4000 bytes (Default) should allow for very slow main loops
@@ -125,7 +124,6 @@ class XT_Wav_Class : public XT_PlayListItem_Class
 	protected:
 
 	public:
-  double wav_time;
 	uint16_t SampleRate;
 	uint32_t DataSize=0;                        // The last integer part of count
 	uint32_t DataStart;							// offset of the actual data.
@@ -441,7 +439,7 @@ class XT_DAC_Audio_Class
 
 		void FillBuffer();										// Fills the buffer of values to send to the DAC, put in your
 																// main loop, see BUFFER_SIZE comments at top of code.
-    uint8_t DacVolume = 100;                                // Audio Volume, Range is 0=Off to 100=Full Volume.  TEB Sep-16-2019
+        uint8_t DacVolume = 100;                                // Audio Volume, Range is 0=Off to 100=Full Volume.  TEB Sep-16-2019
 		uint8_t MixBytesToPlay();
 		void Play(XT_PlayListItem_Class *Sound);
 		void Play(XT_PlayListItem_Class *Sound,bool Mix);
