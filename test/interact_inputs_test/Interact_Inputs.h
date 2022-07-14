@@ -1,32 +1,16 @@
 /**
  * @file Interact_Inputs.h
  * @author ntueecamp 2022 (FrSh28)
- * @brief Header file of functions about interactive inputs (CapTouch, LimitSwitch and PhotoResistor) of the robot dog.
- * @date 2022-06-28
+ * @brief Header file of functions about interaction inputs (CapTouch, LimitSwitch and PhotoResistor)
+ * @date 2022-06-30
  *
  */
 
 #ifndef INTERACT_INPUTS_H
 #define INTERACT_INPUTS_H
 
-#include <Arduino.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/event_groups.h"
-
-#define CAP_TOUCH_BIT      (1 << 0)
-#define LIMIT_SWITCH_BIT   (1 << 1)
-#define PHOTO_RESISTOR_BIT (1 << 2)
-
-/**
- * @brief The event group associated with user interaction with robot dog
- * 
- * Call `xEventGroupSetBits(interactEG, XXX_BIT)` to clear the event bit
- * Call `xEventGroupClearBits(interactEG, XXX_BIT)` to clear the event bit
- */
-extern EventGroupHandle_t interactEG;
-EventGroupHandle_t createInteractEG();
-void deleteInteractEG();
 
 /**
  * @brief Init function and ISR for capacitance touch sensor
@@ -65,6 +49,5 @@ int initLimitSwitch(const uint8_t& pin, const int& triggerMode);
  */
 void handlePhotoResistor(void* argv);
 TaskHandle_t initPhotoResistor(const uint8_t& pin, const uint16_t& threshold, const uint32_t& period = 1000);
-
 
 #endif // INTERACT_INPUTS_H

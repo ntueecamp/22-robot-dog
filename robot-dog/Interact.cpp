@@ -1,5 +1,5 @@
 /**
- * @file Interact_Inputs.cpp
+ * @file Interact.cpp
  * @author ntueecamp 2022 (FrSh28)
  * @brief Inplementations of functions about interaction inputs (CapTouch, LimitSwitch and PhotoResistor)
  *        and outputs (Sound and LED) of the robot dog.
@@ -9,9 +9,10 @@
 
 #include "Interact.h"
 
+#include <Arduino.h>
 #include "src/esp32-led-matrix/LedMatrix.h"
 #include "src/XT_DAC_Audio/XT_DAC_Audio.h"
-#include "RobotDog.h"
+#include "Events.h"
 #include "LEDContent.h"
 #include "woof.h"
 #include "low_woof.h"

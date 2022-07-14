@@ -1,7 +1,7 @@
 #include "Trace.h"
 
 #include <Arduino.h>
-#include "RobotDog.h"
+#include "Events.h"
 
 Trace::Trace() {
 }
