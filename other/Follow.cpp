@@ -1,5 +1,7 @@
 #include "Follow.h"
 
+#include "Trace.h"
+
 void handleFollow(void* argv)
 {
     Trace dog;

@@ -23,7 +23,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   EventBits_t curBits;
   curBits = xEventGroupWaitBits( intEG,
-                                 CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESIETOR_BIT,
+                                 CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESISTOR_BIT,
                                  pdFALSE,   // true -> clear the bits before returning, won't affect returned value
                                  pdFALSE,   // true -> wait for all
                                  portMAX_DELAY);
@@ -38,9 +38,9 @@ void loop() {
     Serial.println("LIM");
     xEventGroupClearBits(intEG, LIMIT_SWITCH_BIT);
   }
-  if (curBits & PHOTO_RESIETOR_BIT)
+  if (curBits & PHOTO_RESISTOR_BIT)
   {
     Serial.println("PHR");
-    xEventGroupClearBits(intEG, PHOTO_RESIETOR_BIT);
+    xEventGroupClearBits(intEG, PHOTO_RESISTOR_BIT);
   }
 }

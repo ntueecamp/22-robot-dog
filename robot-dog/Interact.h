@@ -10,24 +10,8 @@
 #ifndef INTERACT_H
 #define INTERACT_H
 
-#include <Arduino.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/event_groups.h"
-
-#define CAP_TOUCH_BIT      (1 << 0)
-#define LIMIT_SWITCH_BIT   (1 << 1)
-#define PHOTO_RESIETOR_BIT (1 << 2)
-
-/**
- * @brief The event group associated with user interaction with robot dog
- * 
- * Call `xEventGroupSetBits(interactEG, XXX_BIT)` to clear the event bit
- * Call `xEventGroupClearBits(interactEG, XXX_BIT)` to clear the event bit
- */
-extern EventGroupHandle_t interactEG;
-EventGroupHandle_t createInteractEG();
-void deleteInteractEG();
 
 /**
  * @brief Init function and ISR for capacitance touch sensor

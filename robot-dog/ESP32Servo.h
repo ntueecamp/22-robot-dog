@@ -1,7 +1,6 @@
 #ifndef ESP32Servo_h
 #define ESP32Servo_h
 
-#include "Arduino.h"
 
 #define DEFAULT_MIN_US           979.0
 #define DEFAULT_MAX_US           1979.0
@@ -13,7 +12,6 @@
 #define PWM_CYCLE                (1000000.0 / PWM_FREQ)
 #define TIMER_WIDTH              16
 #define TIMER_RESOLUTION         ((1 << TIMER_WIDTH) - 1)
-
 
 class ESP32Servo {
 

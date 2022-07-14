@@ -1,7 +1,6 @@
 #ifndef Leg_h
 #define Leg_h
 
-#include "Arduino.h"
 #include "ESP32Servo.h"
 
 #define DEFAULT_LEFT_CHANNEL  0

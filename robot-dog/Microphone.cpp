@@ -1,5 +1,8 @@
 #include "Microphone.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/adc.h"
 #include "driver/i2s.h"
 
 #define I2S_BUFF_LEN  1024    // no more than 1024

@@ -9,43 +9,27 @@
 
 #include "Interact.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
+#include "src/esp32-led-matrix/LedMatrix.h"
 #include "src/XT_DAC_Audio/XT_DAC_Audio.h"
+#include "RobotDog.h"
 #include "woof.h"
 #include "low_woof.h"
-#include "src/esp32-led-matrix/LedMatrix.h"
-
-EventGroupHandle_t interactEG;
-
-EventGroupHandle_t createInteractEG()
-{
-    if (interactEG == NULL)
-        interactEG = xEventGroupCreate();
-
-    if (interactEG != NULL)
-        return interactEG;
-    else    // create failed
-        return NULL;
-}
-
-void deleteInteractEG()
-{
-    vEventGroupDelete(interactEG);
-    interactEG = NULL;
-}
 
 void IRAM_ATTR onCapTouchISR()
 {
     BaseType_t xHigherPriorityWoken = pdFALSE, xResult;
-    xResult = xEventGroupSetBitsFromISR(interactEG, CAP_TOUCH_BIT, &xHigherPriorityWoken);
+    xResult = xEventGroupSetBitsFromISR(dogEventGroup, CAP_TOUCH_BIT, &xHigherPriorityWoken);
     if (xResult != pdFAIL)
         portYIELD_FROM_ISR(xHigherPriorityWoken);
 }
 
 int initCapTouch(const uint8_t& pin, const uint16_t& threshold)
 {
-    if (interactEG == NULL)
-        if (createInteractEG() == NULL)   // create failed
-            return -1;
+    if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
+        return -1;
 
     touchAttachInterrupt(pin, onCapTouchISR, threshold);
 
@@ -55,16 +39,15 @@ int initCapTouch(const uint8_t& pin, const uint16_t& threshold)
 void IRAM_ATTR onLimitSwitchISR()
 {
     BaseType_t xHigherPriorityWoken = pdFALSE, xResult;
-    xResult = xEventGroupSetBitsFromISR(interactEG, LIMIT_SWITCH_BIT, &xHigherPriorityWoken);
+    xResult = xEventGroupSetBitsFromISR(dogEventGroup, LIMIT_SWITCH_BIT, &xHigherPriorityWoken);
     if (xResult != pdFAIL)
         portYIELD_FROM_ISR(xHigherPriorityWoken);
 }
 
 int initLimitSwitch(const uint8_t& pin, const int& triggerMode)
 {
-    if (interactEG == NULL)
-        if (createInteractEG() == NULL)   // create failed
-            return -1;
+    if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
+        return -1;
 
     if (triggerMode == RISING)
         pinMode(pin, INPUT_PULLDOWN);
@@ -91,7 +74,7 @@ void handlePhotoResistor(void* argv)
     while (true)
     {
         if (analogRead(pin) < threshold)
-            xEventGroupSetBits(interactEG, PHOTO_RESIETOR_BIT);
+            xEventGroupSetBits(dogEventGroup, PHOTO_RESISTOR_BIT);
         
         vTaskDelayUntil(&lastWakeTime, period);
     }
@@ -101,9 +84,8 @@ void handlePhotoResistor(void* argv)
 
 TaskHandle_t initPhotoResistor(const uint8_t& pin, const uint16_t& threshold, const uint32_t& period)
 {
-    if (interactEG == NULL)
-        if (createInteractEG() == NULL)   // create failed
-            return NULL;
+    if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
+        return NULL;
 
     //uint32_t* argv = (uint32_t*)malloc(2 * sizeof(uint32_t));
     uint32_t argv[3];
@@ -134,13 +116,13 @@ void handleSound(void* argv)
     EventBits_t curBits;
     while (true)
     {
-        curBits = xEventGroupWaitBits( interactEG,
-                                       PHOTO_RESIETOR_BIT,    // CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESIETOR_BIT
+        curBits = xEventGroupWaitBits( dogEventGroup,
+                                       PHOTO_RESISTOR_BIT,    // CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESISTOR_BIT
                                        pdFALSE,   // true -> clear the bits before returning, won't affect returned value
                                        pdFALSE,   // true -> wait for all
                                        portMAX_DELAY);
 
-        if (curBits & PHOTO_RESIETOR_BIT)
+        if (curBits & PHOTO_RESISTOR_BIT)
         {
         #ifdef DEBUG
             Serial.println("PHR");
@@ -158,7 +140,7 @@ void handleSound(void* argv)
             DacAudio.StopAllSounds();
             // end sound playing
 
-            xEventGroupClearBits(interactEG, PHOTO_RESIETOR_BIT);
+            xEventGroupClearBits(dogEventGroup, PHOTO_RESISTOR_BIT);
         }
     }
 
@@ -167,9 +149,8 @@ void handleSound(void* argv)
 
 TaskHandle_t initSound(const uint8_t& pin)
 {
-    if (interactEG == NULL)
-        if (createInteractEG() == NULL)   // create failed
-            return NULL;
+    if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
+        return NULL;
 
     BaseType_t xResult;
     TaskHandle_t soundTaskHandle;
@@ -216,8 +197,8 @@ void handleLED(void* argv)
     EventBits_t curBits;
     while (true)
     {
-        curBits = xEventGroupWaitBits( interactEG,
-                                       CAP_TOUCH_BIT | LIMIT_SWITCH_BIT,    // CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESIETOR_BIT
+        curBits = xEventGroupWaitBits( dogEventGroup,
+                                       CAP_TOUCH_BIT | LIMIT_SWITCH_BIT,    // CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESISTOR_BIT
                                        pdFALSE,   // true -> clear the bits before returning, won't affect returned value
                                        pdFALSE,   // true -> wait for all
                                        portMAX_DELAY);
@@ -242,7 +223,7 @@ void handleLED(void* argv)
                 vTaskDelayUntil(&lastWakeTime, period);   // times per second
             }
 
-            xEventGroupClearBits(interactEG, CAP_TOUCH_BIT);
+            xEventGroupClearBits(dogEventGroup, CAP_TOUCH_BIT);
         }
         else if (curBits & LIMIT_SWITCH_BIT)
         {
@@ -256,16 +237,15 @@ void handleLED(void* argv)
             ledMatrix.commit();
             vTaskDelay(500 / portTICK_PERIOD_MS);
             
-            xEventGroupClearBits(interactEG, LIMIT_SWITCH_BIT);
+            xEventGroupClearBits(dogEventGroup, LIMIT_SWITCH_BIT);
         }
     }
 }
 
 TaskHandle_t initLED(const uint8_t& sck, const uint8_t& miso, const uint8_t& mosi, const uint8_t& cs)
 {
-    if (interactEG == NULL)
-        if (createInteractEG() == NULL)   // create failed
-            return NULL;
+    if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
+        return NULL;
 
     uint8_t argv[4];
     argv[0] = sck;

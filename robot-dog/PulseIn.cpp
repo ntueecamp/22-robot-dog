@@ -1,5 +1,6 @@
 #include "PulseIn.h"
 
+#include <Arduino.h>
 #include "esp_timer.h"
 
 #define RISING_BIT  (1 << 0)

@@ -16,7 +16,7 @@
 
 #define CAP_TOUCH_BIT      (1 << 0)
 #define LIMIT_SWITCH_BIT   (1 << 1)
-#define PHOTO_RESIETOR_BIT (1 << 2)
+#define PHOTO_RESISTOR_BIT (1 << 2)
 
 /**
  * @brief The event group associated with user interaction with robot dog

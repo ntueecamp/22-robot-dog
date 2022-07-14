@@ -1,10 +1,9 @@
 #include "Radar.h"
 
 #include <Arduino.h>
-
-#include "PulseIn.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "PulseIn.h"
 
 Radar::Radar() {
     for (int i = 0; i < 5; i++) 
