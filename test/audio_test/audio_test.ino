@@ -5,8 +5,9 @@
 #include "playback1.h"
 #include "sound_A.h"
 
-New_Audio Sound_High(low_woof,size_low_woof);
-New_Audio Sound_Low(playback1,size_playback1);        
+New_Audio Sound_1(woof,size_woof);
+New_Audio Sound_2(low_woof,size_low_woof);
+New_Audio Sound_3(playback1,size_playback1);        
 New_Audio Sound_Sin(sound_A,size_sound_A);  
                                       
 XT_DAC_Audio_Class DacAudio(25,0);              
@@ -20,17 +21,14 @@ void loop() {
   {
     String dat=Serial.readStringUntil('\n');
     Serial.println(dat);
-    if(dat=="high")
+    if(dat=="start")
     {
-      Sound_High.play_once();
-    }
-    else if(dat=="low")
-    {
-      Sound_Low.play_once();
-    }
-    else if(dat=="sin")
-    {
-      Sound_Sin.play_once();
+      for(int i=0;i<10;i++)
+      {
+        Sound_1.play_once();
+        Sound_2.play_once();
+        Sound_3.play_once();
+      }
     }
   }
 }
