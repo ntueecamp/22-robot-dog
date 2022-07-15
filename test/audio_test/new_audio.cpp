@@ -38,3 +38,13 @@ void New_Audio::play_music(int times, int interval)
 		}
 	}
 }
+void New_Audio::play_once()
+{
+  DacAudio.Play(this);  // register to play
+  while (Playing)   // loop until the sound ends
+  {
+      DacAudio.FillBuffer();  // fill buffer to DAC, buffer size is 4000
+                              // we need to call this function at least (SAMPLE_RATE / 4000) times per second
+  }
+  DacAudio.StopAllSounds();
+}

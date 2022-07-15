@@ -9,5 +9,6 @@ class New_Audio:public XT_Wav_Class
 	public:
 		New_Audio(const unsigned char *data, int siz);
 		void play_music(int times, int interval);	
+    void play_once();
 };
 #endif
