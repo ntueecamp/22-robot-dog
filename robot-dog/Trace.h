@@ -20,6 +20,7 @@
 // which depends on the weight of load and the friction between the dog and the floor
 // has absolute value lower than 1.0
 #define MIN_VEL 0.35
+// #define MIN_VEL_TEST
 
 class Trace {
     public:
@@ -29,6 +30,9 @@ class Trace {
         // make radar to rotation for one period and ultra-sonic to detect
         // compute the left/right wheel velocity and write them to the servos of leg
         void Move();
+
+        // STOP for dogs to sit
+        void Stop();
 
         // set up
         void init();

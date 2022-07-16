@@ -23,6 +23,10 @@ void Radar::init() {
     servo.write(CENTERANGLE);
 }
 
+void Radar::resetRadar() {
+    servo.write(CENTERANGLE);
+}
+
 double Radar::getDis() {
     return minDis;
 }
@@ -97,7 +101,7 @@ double Radar::disMeasuring() {
 
     taskEXIT_CRITICAL(&mux);
 
-    duration = pulseInThreadSafe(ECHOPIN, HIGH, 1000000 * _THRESHOLD/340 * 4);  // duration for HIGH on echo pin
+    duration = pulseInThreadSafe(ECHOPIN, HIGH, 1000000 * _THRESHOLD/100/340 * 4);  // duration for HIGH on echo pin
     vTaskDelayUntil(&entryTime, ULTRASONIC_TIMEOUT / portTICK_PERIOD_MS);
 
     cm = (duration / 2) / 29.1;  // calculate distance based on duration
