@@ -43,12 +43,12 @@ CommandProcessor::CommandProcessor()
 void CommandProcessor::queueCommand(uint16_t commandIndex, float best_score)
 {
     // unsigned long now = millis();
-    if (commandIndex != 5 && commandIndex != -1)
+    // if (commandIndex != 4 && commandIndex != -1)
+    // {
+    Serial.printf("***** %ld Detected command %s(%f)\n", millis(), words[commandIndex], best_score);
+    if (xQueueSendToBack(m_command_queue_handle, &commandIndex, 0) != pdTRUE)
     {
-        Serial.printf("***** %ld Detected command %s(%f)\n", millis(), words[commandIndex], best_score);
-        if (xQueueSendToBack(m_command_queue_handle, &commandIndex, 0) != pdTRUE)
-        {
-            Serial.println("No more space for command");
-        }
+        Serial.println("No more space for command");
     }
+    // }
 }

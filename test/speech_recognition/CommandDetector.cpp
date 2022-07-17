@@ -53,7 +53,6 @@ CommandDetector::~CommandDetector()
 void CommandDetector::run()
 {
     // time how long this takes for stats
-    long start = millis();
     // get access to the samples that have been read in
     RingBufferAccessor *reader = m_sample_provider->getRingBufferReader();
     // rewind by 1 second
@@ -65,7 +64,9 @@ void CommandDetector::run()
     // finished with the sample reader
     delete reader;
     // get the prediction for the spectrogram
+    long start = millis();
     m_nn->predict();
+    long end = millis();
     // keep track of the previous 5 scores - about 0.5 seconds given current processing speed
     for (int i = 0; i < NUMBER_COMMANDS; i++)
     {
@@ -93,12 +94,16 @@ void CommandDetector::run()
             best_score = scores[i];
         }
     }
-    long end = millis();
     // sanity check best score and check the cool down period
     if (best_score > DETECTION_THRESHOLD && best_index != NUMBER_COMMANDS - 1 && start - m_last_detection > 1000)
     {
         m_last_detection = start;
         m_command_processor->queueCommand(best_index, best_score);
+    }
+    else if (best_score > DETECTION_THRESHOLD && best_index == NUMBER_COMMANDS - 1 && start - m_last_detection > 1000)
+    {
+        m_last_detection = start;
+        Serial.printf("Detected nonsense: %.3f\n", best_score);
     }
     // compute the stats
     long diff = end - start;
@@ -108,7 +113,7 @@ void CommandDetector::run()
     if (m_number_of_runs == 1)
     {
         m_number_of_runs = 0;
-        Serial.printf("Average detection time %.fms\n", m_average_detect_time);
+        // Serial.printf("Average detection time %.fms\n", m_average_detect_time);
         Serial.printf("current detection time: %dms\n", diff);
     }
 }

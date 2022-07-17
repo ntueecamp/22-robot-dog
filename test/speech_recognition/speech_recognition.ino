@@ -35,6 +35,7 @@ void commandDetectTask(void *param)
     if (ulNotificationValue > 0)
     {
       commandDetector->run();
+      vTaskDelay(pdMS_TO_TICKS(100));
     }
   }
 }
@@ -59,10 +60,6 @@ void setup()
       .use_apll = false,
       .tx_desc_auto_clear = false,
       .fixed_mclk = 0};
-  // // install and start i2s driver
-  // i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
-  // // init ADC pad
-  // i2s_set_adc_mode(ADC_UNIT_1, ADC_CHANNEL);
 
   // start up the I2S input (from either an I2S microphone or Analogue microphone via the ADC)
   I2SSampler *i2s_sampler = new ADCSampler(ADC_UNIT_1, ADC1_CHANNEL_6);
@@ -78,8 +75,6 @@ void setup()
 
   // start sampling from i2s device - use I2S_NUM_0 as that's the one that supports the internal ADC
   i2s_sampler->start(I2S_NUM_0, i2s_config, applicationTaskHandle);
-
-  // xTaskCreatePinnedToCore(reader, "ADC_reader", 2500, micBuffer, 1, NULL, 1);
 }
 
 void loop()

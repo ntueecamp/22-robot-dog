@@ -97,7 +97,7 @@ NNResult NeuralNetwork::predict()
             best_index = i;
         }
     }
-    
+
     return {
         .score = best_score,
         .index = best_index};
