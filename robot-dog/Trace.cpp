@@ -11,12 +11,11 @@ Trace::~Trace() {
 
 void Trace::init() {
     radar.init();
-    leg.initialize();
 }
 
 void Trace::Move() {
 #ifdef MIN_VEL_TEST
-    leg.write(MIN_VEL);
+    dogLeg.write(MIN_VEL);
 #else
     // base velocity
     // delta velocity (velocity difference between the left/right wheels)
@@ -70,53 +69,51 @@ void Trace::Move() {
         leftVel = min(leftVel, -MIN_VEL);
         rightVel = min(rightVel, -MIN_VEL);
     }
-    leg.write(leftVel, rightVel);
+    dogLeg.write(leftVel, rightVel);
 #endif /* MIN_VEL_TEST */
 }
 
 void Trace::Stop() {
     radar.resetRadar();
-    leg.write(0, 0);
+    dogLeg.write(0, 0);
 }
 
-void handleFollow(void* argv)
-{
-  Trace dog;
-  dog.init();
-  vTaskDelay(RADARDELAYTIME / portTICK_PERIOD_MS);
-  EventBits_t curBits;
-
-  while (true)
-  {
-    curBits = xEventGroupGetBits(dogEventGroup);
-    if (curBits & PHOTO_RESISTOR_BIT || !(curBits & FOLLOWING_BIT))
+void handleFollow(void* argv) {
+    Trace dog;
+    dog.init();
+    vTaskDelay(RADARDELAYTIME / portTICK_PERIOD_MS);
+    EventBits_t curBits;
+  
+    while (true)
     {
-      xEventGroupClearBits(dogEventGroup, FOLLOWING_BIT);
-      // dog.stop();
-      xEventGroupSetBits(dogEventGroup, FOLLOW_STOP_BIT);
+        curBits = xEventGroupGetBits(dogEventGroup);
+        if (curBits & PHOTO_RESISTOR_BIT || !(curBits & FOLLOWING_BIT))
+        {
+            xEventGroupClearBits(dogEventGroup, FOLLOWING_BIT);
+            dog.Stop();
+            xEventGroupSetBits(dogEventGroup, FOLLOW_STOP_BIT);
 
-      curBits = xEventGroupWaitBits( dogEventGroup,
-                                     FOLLOWING_BIT,
-                                     pdFALSE,   // true -> clear the bits before returning, won't affect returned value
-                                     pdFALSE,   // true -> wait for all
-                                     portMAX_DELAY);
-      if (curBits & FOLLOWING_BIT)
-      {
-        // dog.restart();
-        xEventGroupSetBits(dogEventGroup, FOLLOWING_BIT);
-      }
-      else
-        continue;
+            curBits = xEventGroupWaitBits( dogEventGroup,
+                                           FOLLOWING_BIT,
+                                           pdFALSE,   // true -> clear the bits before returning, won't affect returned value
+                                           pdFALSE,   // true -> wait for all
+                                           portMAX_DELAY);
+            if (curBits & FOLLOWING_BIT)
+                xEventGroupSetBits(dogEventGroup, FOLLOWING_BIT);
+            else
+                continue;
+        }
+
+        dog.Move();
+
+        taskYIELD();
     }
-
-    dog.Move();
-
-    taskYIELD();
-  }
 }
 
-TaskHandle_t initFollow()
-{
+TaskHandle_t initFollow() {
+  if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
+    return NULL;
+
   BaseType_t xResult;
   TaskHandle_t followTaskHandle;
   xResult = xTaskCreate( handleFollow,

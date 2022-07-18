@@ -8,9 +8,11 @@
 
 #define DEBUG
 
+#include "driver/adc.h"
 #include "Interact.h"
 #include "Trace.h"
 #include "AudioRecognition.h"
+#include "low_woof.h"
 
 #define CAP_TOUCH_PIN      4
 #define LIMIT_SWITCH_PIN   12
@@ -39,14 +41,19 @@ void setup() {
   initPhotoResistor(PHOTO_RESISTOR_PIN, 1500, 300);    // with 10 kohm to GND
 
   // interact outputs
-  initSound(SOUND_PIN);
+  initSound(SOUND_PIN, low_woof);
   initLED(SCK_PIN, MISO_PIN, MOSI_PIN, CS_PIN);
 
   // follow
+  dogLeg.initialize();
   initFollow();
 
   // microphone
   initAudioRecognition(MIC_PIN, ADC_CHANNEL);
+
+#ifdef DEBUG
+  Serial.println("Setup Done!");
+#endif
 }
 
 void loop() {

@@ -24,7 +24,7 @@
  * and use as a reference to determine the threshold
  */
 void IRAM_ATTR onCapTouchISR();
-int initCapTouch(const uint8_t& pin, const uint16_t& threshold);
+int initCapTouch(const uint8_t& _pin, const uint16_t& _threshold);
 
 /**
  * @brief Init function and ISR for limit switch
@@ -33,8 +33,15 @@ int initCapTouch(const uint8_t& pin, const uint16_t& threshold);
  * @param triggerMode How interrupt is triggered, either RISING or FALLING
  */
 void IRAM_ATTR onLimitSwitchISR();
-int initLimitSwitch(const uint8_t& pin, const int& triggerMode);
+int initLimitSwitch(const uint8_t& _pin, const int& _triggerMode);
 
+typedef struct
+{
+    uint8_t pin;
+    uint16_t threshold;
+    uint32_t period;
+    TaskHandle_t callingTask;
+} photo_R_config_t;
 /**
  * @brief Init function and periodic handler for photo resistor
  *
@@ -49,16 +56,30 @@ int initLimitSwitch(const uint8_t& pin, const int& triggerMode);
  * This feature CANNOT be made an interrupt since analogRead() is too slow
  */
 void handlePhotoResistor(void* argv);
-TaskHandle_t initPhotoResistor(const uint8_t& pin, const uint16_t& threshold, const uint32_t& period = 1000);
+TaskHandle_t initPhotoResistor(const uint8_t& _pin, const uint16_t& _threshold, const uint32_t& _period = 1000);
 
+typedef struct
+{
+    uint8_t pin;
+    const unsigned char* soundData;
+    TaskHandle_t callingTask;
+} sound_config_t;
 /**
  * @brief Init function and infinite running handler related to sound
  *
  * @param pin The pin to output the sound (by DAC), GPIO 25 or 26
  */
 void handleSound(void* argv);
-TaskHandle_t initSound(const uint8_t& pin);
+TaskHandle_t initSound(const uint8_t& _pin, const unsigned char* _soundData);
 
+typedef struct
+{
+    uint8_t  sck;
+    uint8_t miso;
+    uint8_t mosi;
+    uint8_t   cs;
+    TaskHandle_t callingTask;
+} led_config_t;
 /**
  * @brief Init function and infinite running handler related to LED
  *
@@ -68,6 +89,6 @@ TaskHandle_t initSound(const uint8_t& pin);
  * @param cs   Chip Select pin
  */
 void handleLED(void* argv);
-TaskHandle_t initLED(const uint8_t& sck, const uint8_t& miso, const uint8_t& mosi, const uint8_t& cs);
+TaskHandle_t initLED(const uint8_t& _sck, const uint8_t& _miso, const uint8_t& _mosi, const uint8_t& _cs);
 
 #endif // INTERACT_H

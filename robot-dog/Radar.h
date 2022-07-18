@@ -22,7 +22,7 @@
 // THRESHOLD is the distance for dog to decide moving forward or backward
 // _THRESHOLD is the effective distance which is to determine if owner is there
 #define THRESHOLD 25    // cm
-#define _THRESHOLD 4 * THRESHOLD  // cm
+#define _THRESHOLD (4 * THRESHOLD)  // cm
 
 class Radar {
    public:

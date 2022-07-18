@@ -4,25 +4,7 @@
 Microphone::Microphone(const uint8_t& _pin, const adc1_channel_t& _channel, const uint32_t& _sampleRate)
  : pin(_pin), channel(_channel), sampleRate(_sampleRate)
 {
-    micBuffer = (uint8_t*)malloc(2 * I2S_BUFF_LEN);    // need 16-bit (2 bytes) for each sample, but use uint8_t for easier indexing
-}
-
-Microphone::~Microphone()
-{
-    free(micBuffer);
-    i2s_driver_uninstall(I2S_NUM_0);
-}
-
-void Microphone::init()
-{
-    // // checking if input arguments are legal
-    // uint8_t channel2Pin;
-    // if (adc1_pad_get_io_num(channel, &channel2Pin) != ESP_OK)
-    //     return NULL;
-    // if (pin != channel2Pin)
-    //     return NULL;
-
-    i2s_config_t i2s_config = {
+    i2s_config = {
         .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX | I2S_MODE_ADC_BUILT_IN),
         .sample_rate = sampleRate,
         .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
@@ -35,7 +17,26 @@ void Microphone::init()
         .tx_desc_auto_clear = false,
         .fixed_mclk = 0
     };
-    //install and start i2s driver
+
+    micBuffer = (uint8_t*)malloc(2 * I2S_BUFF_LEN);    // need 16-bit (2 bytes) for each sample, but use uint8_t for easier indexing
+}
+
+Microphone::~Microphone()
+{
+    i2s_driver_uninstall(I2S_NUM_0);
+    free(micBuffer);
+}
+
+void Microphone::init()
+{
+    // // checking if input arguments are legal
+    // uint8_t channel2Pin;
+    // if (adc1_pad_get_io_num(channel, &channel2Pin) != ESP_OK)
+    //     return;
+    // if (pin != channel2Pin)
+    //     return;
+
+    // install and start i2s driver
     i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
     //init ADC pad
     i2s_set_adc_mode(ADC_UNIT_1, channel);
@@ -43,9 +44,9 @@ void Microphone::init()
 
 int Microphone::recordAudio(uint8_t* buf, const int& length)
 {
-    size_t samplesAcquired = 0, bytesRead = 0;
     int index = 0;
-
+    size_t samplesAcquired = 0, bytesRead = 0;
+    
     while (index < length)
     {
         samplesAcquired = length - index;
