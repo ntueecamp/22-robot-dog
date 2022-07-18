@@ -56,7 +56,22 @@ void setup() {
 #endif
 }
 
+#ifdef DEBUG
+  #include "Events.h"
+  EventBits_t dogBits;
+#endif
+
 void loop() {
   // put your main code here, to run repeatedly:
   // Dont put anything here, use RTOS task instead
+#ifdef DEBUG
+  dogBits = xEventGroupGetBits(dogEventGroup);
+  Serial.print((dogBits & CAP_TOUCH_BIT)      > 0);
+  Serial.print((dogBits & LIMIT_SWITCH_BIT)   > 0);
+  Serial.print((dogBits & PHOTO_RESISTOR_BIT) > 0);
+  Serial.print((dogBits & FOLLOWING_BIT)      > 0);
+  Serial.print((dogBits & FOLLOW_STOP_BIT)    > 0);
+  Serial.println("");
+  vTaskDelay(1000 / portTICK_PERIOD_MS);
+#endif
 }

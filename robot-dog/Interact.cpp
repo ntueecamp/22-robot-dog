@@ -72,8 +72,13 @@ void handlePhotoResistor(void* argv)
 
     while (true)
     {
+#ifdef DEBUG
+        int val = analogRead(pin);
+        Serial.println(val);
+        if (val < threshold)
+#else
         if (analogRead(pin) < threshold)
-        {
+#endif
             xEventGroupSetBits(dogEventGroup, PHOTO_RESISTOR_BIT);
 
         vTaskDelayUntil(&lastWakeTime, period);

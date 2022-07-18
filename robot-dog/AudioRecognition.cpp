@@ -33,6 +33,7 @@ void handleAudioRecognition(void* argv)
 #endif // DEBUG
             xEventGroupClearBits(dogEventGroup, PHOTO_RESISTOR_BIT);
 
+            int moving = 1;
             while (true)
             {
                 curBits = xEventGroupGetBits(dogEventGroup);
@@ -45,38 +46,54 @@ void handleAudioRecognition(void* argv)
                 // predict
 
                 // broadcast event
-                if (false)          // forward
+                if (!moving)
                 {
-                    dogLeg.write(0.8, 0.8);
-                    vTaskDelay(1000 / portTICK_PERIOD_MS);
-                    dogLeg.write(0.0, 0.0);
+                    if (false)     // go
+                        moving = 1;
                 }
-                else if (false)     // backward
+                else
                 {
-                    dogLeg.write(-0.8, -0.8);
-                    vTaskDelay(1000 / portTICK_PERIOD_MS);
-                    dogLeg.write(0.0, 0.0);
-                }
-                else if (false)     // left
-                {
-                    dogLeg.write(0.4, 0.8);
-                    vTaskDelay(1000 / portTICK_PERIOD_MS);
-                    dogLeg.write(0.0, 0.0);
-                }
-                else if (false)     // right
-                {
-                    dogLeg.write(0.8, 0.4);
-                    vTaskDelay(1000 / portTICK_PERIOD_MS);
-                    dogLeg.write(0.0, 0.0);
-                }
-                else if (false)     // follow
-                {
-                    break;
+                    if (false)          // sit
+                    {
+                        dogLeg.write(0.0, 0.0);
+                        moving = 0;
+                    }
+                    else if (false)     // forward
+                    {
+                        dogLeg.write(0.8, 0.8);
+                        vTaskDelay(1000 / portTICK_PERIOD_MS);
+                        dogLeg.write(0.0, 0.0);
+                    }
+                    else if (false)     // backward
+                    {
+                        dogLeg.write(-0.8, -0.8);
+                        vTaskDelay(1000 / portTICK_PERIOD_MS);
+                        dogLeg.write(0.0, 0.0);
+                    }
+                    else if (false)     // left
+                    {
+                        dogLeg.write(0.4, 0.8);
+                        vTaskDelay(1000 / portTICK_PERIOD_MS);
+                        dogLeg.write(0.0, 0.0);
+                    }
+                    else if (false)     // right
+                    {
+                        dogLeg.write(0.8, 0.4);
+                        vTaskDelay(1000 / portTICK_PERIOD_MS);
+                        dogLeg.write(0.0, 0.0);
+                    }
+                    else if (false)     // follow
+                    {
+                        // hardReset();
+                        break;
+                    }
                 }
             }   // inner while
 
-            xEventGroupClearBits(dogEventGroup, FOLLOW_STOP_BIT);
-            xEventGroupSetBits(dogEventGroup, FOLLOWING_BIT | WOOF_BIT);
+            xEventGroupSetBits(dogEventGroup, WOOF_BIT);
+            vTaskDelay(2000 / portTICK_PERIOD_MS);
+            xEventGroupClearBits(dogEventGroup, FOLLOW_STOP_BIT | PHOTO_RESISTOR_BIT);
+            xEventGroupSetBits(dogEventGroup, FOLLOWING_BIT);
         }
     }
 
