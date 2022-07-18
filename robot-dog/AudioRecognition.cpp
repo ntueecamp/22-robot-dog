@@ -11,6 +11,10 @@ void handleAudioRecognition(void* argv)
 
     Microphone mic(audio_config->pin, audio_config->channel, SAMPLE_RATE);
     // NeuralNetwork
+    xTaskNotifyGiveIndexed(audio_config->callingTask, 0);
+
+    mic.init();
+
     EventBits_t curBits;
 
     while (true)
@@ -45,6 +49,9 @@ void handleAudioRecognition(void* argv)
 
 TaskHandle_t initAudioRecognition(const uint8_t& _pin, const adc1_channel_t& _channel)
 {
+    if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
+        return NULL;
+
     audio_config_t audio_config = {
         .pin = _pin,
         .channel = _channel,

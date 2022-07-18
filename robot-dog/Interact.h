@@ -35,6 +35,13 @@ int initCapTouch(const uint8_t& pin, const uint16_t& threshold);
 void IRAM_ATTR onLimitSwitchISR();
 int initLimitSwitch(const uint8_t& pin, const int& triggerMode);
 
+typedef struct
+{
+    uint8_t pin;
+    uint16_t threshold;
+    uint32_t period;
+    TaskHandle_t callingTask;
+} photo_R_config_t;
 /**
  * @brief Init function and periodic handler for photo resistor
  *

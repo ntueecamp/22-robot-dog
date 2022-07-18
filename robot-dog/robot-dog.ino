@@ -8,6 +8,7 @@
 
 #define DEBUG
 
+#include "driver/adc.h"
 #include "Interact.h"
 #include "Trace.h"
 #include "AudioRecognition.h"
@@ -47,6 +48,10 @@ void setup() {
 
   // microphone
   initAudioRecognition(MIC_PIN, ADC_CHANNEL);
+
+#ifdef DEBUG
+  Serial.println("Setup Done!");
+#endif
 }
 
 void loop() {

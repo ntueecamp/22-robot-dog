@@ -117,6 +117,9 @@ void handleFollow(void* argv)
 
 TaskHandle_t initFollow()
 {
+  if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
+    return NULL;
+
   BaseType_t xResult;
   TaskHandle_t followTaskHandle;
   xResult = xTaskCreate( handleFollow,

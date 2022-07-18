@@ -9,6 +9,7 @@
 class Microphone
 {
 private:
+    i2s_config_t i2s_config;
     uint8_t pin;
     adc1_channel_t channel;
     uint32_t sampleRate;

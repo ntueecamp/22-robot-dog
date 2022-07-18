@@ -10,6 +10,7 @@
 #include "Interact.h"
 
 #include <Arduino.h>
+#include "driver/adc.h"
 #include "src/esp32-led-matrix/LedMatrix.h"
 #include "src/XT_DAC_Audio/XT_DAC_Audio.h"
 #include "Events.h"
@@ -62,19 +63,20 @@ int initLimitSwitch(const uint8_t& pin, const int& triggerMode)
 
 void handlePhotoResistor(void* argv)
 {
-    uint8_t  pin       =  (uint8_t)((uint32_t*)argv)[0];
-    uint16_t threshold = (uint16_t)((uint32_t*)argv)[1];
-    uint32_t period    =           ((uint32_t*)argv)[2];
-    // free(argv);
+    photo_R_config_t* photo_R_config = (photo_R_config_t*)argv;
+    uint8_t  pin       = photo_R_config->pin;
+    uint16_t threshold = photo_R_config->threshold;
+    uint32_t period    = photo_R_config->period/ portTICK_PERIOD_MS;;
 
-    period = period / portTICK_PERIOD_MS;
+    xTaskNotifyGiveIndexed(photo_R_config->callingTask, 0);
+
     TickType_t lastWakeTime = xTaskGetTickCount();
 
     while (true)
     {
         if (analogRead(pin) < threshold)
             xEventGroupSetBits(dogEventGroup, PHOTO_RESISTOR_BIT);
-        
+
         vTaskDelayUntil(&lastWakeTime, period);
     }
 
@@ -86,23 +88,28 @@ TaskHandle_t initPhotoResistor(const uint8_t& pin, const uint16_t& threshold, co
     if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
         return NULL;
 
-    //uint32_t* argv = (uint32_t*)malloc(2 * sizeof(uint32_t));
-    uint32_t argv[3];
-    argv[0] = pin;
-    argv[1] = threshold;
-    argv[2] = period;
+    photo_R_config_t photo_R_config = {
+        .pin = pin,
+        .threshold = threshold,
+        .period = period,
+        .callingTask = xTaskGetCurrentTaskHandle()
+    };
 
     BaseType_t xResult;
     TaskHandle_t photoResistorTaskHandle;
     xResult = xTaskCreate( handlePhotoResistor,
                            "PhotoResistorHandler",
-                           1024,     // stack size in words (4 bytes on ESP32)
-                           (void*)argv,
+                           2048,     // stack size in words (4 bytes on ESP32)
+                           (void*)&photo_R_config,
                            2,       // priority, >= 2 is good, TBD
                            &photoResistorTaskHandle );
 
     if (xResult != pdPASS)
         return NULL;
+
+    ulTaskNotifyTakeIndexed( 0,         // take from the 0th notification
+                             pdTRUE,    // true -> clear the value before returning, won't affect returned value
+                             portMAX_DELAY);
 
     return photoResistorTaskHandle;
 }
