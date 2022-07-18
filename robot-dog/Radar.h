@@ -12,8 +12,8 @@
 #define RADARDELAYTIME 120     // ms
 
 #define CENTERANGLE 0
-#define LEFT_HALF_ROTATEANGLE 0.26
-#define RIGHT_HALF_ROTATEANGLE 0.31
+#define LEFT_HALF_ROTATEANGLE 0.33
+#define RIGHT_HALF_ROTATEANGLE 0.33
 
 #define DEFAULT_NECK_CHANNEL 2
 #define NECKSERVO_MIN_US 480
@@ -32,6 +32,9 @@ class Radar {
 
     // initialize
     void init();
+
+    // set dog neck 0
+    void resetRadar();
 
     // belows are the output of the results of detection of ultra-sonic
 
