@@ -15,8 +15,6 @@
 #include "src/XT_DAC_Audio/XT_DAC_Audio.h"
 #include "Events.h"
 #include "LEDContent.h"
-#include "woof.h"
-#include "low_woof.h"
 
 void IRAM_ATTR onCapTouchISR()
 {
@@ -26,12 +24,12 @@ void IRAM_ATTR onCapTouchISR()
         portYIELD_FROM_ISR(xHigherPriorityWoken);
 }
 
-int initCapTouch(const uint8_t& pin, const uint16_t& threshold)
+int initCapTouch(const uint8_t& _pin, const uint16_t& _threshold)
 {
     if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
         return -1;
 
-    touchAttachInterrupt(pin, onCapTouchISR, threshold);
+    touchAttachInterrupt(_pin, onCapTouchISR, _threshold);
 
     return 0;
 }
@@ -44,19 +42,19 @@ void IRAM_ATTR onLimitSwitchISR()
         portYIELD_FROM_ISR(xHigherPriorityWoken);
 }
 
-int initLimitSwitch(const uint8_t& pin, const int& triggerMode)
+int initLimitSwitch(const uint8_t& _pin, const int& _triggerMode)
 {
     if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
         return -1;
 
-    if (triggerMode == RISING)
-        pinMode(pin, INPUT_PULLDOWN);
-    else if (triggerMode == FALLING)
-        pinMode(pin, INPUT_PULLUP);
+    if (_triggerMode == RISING)
+        pinMode(_pin, INPUT_PULLDOWN);
+    else if (_triggerMode == FALLING)
+        pinMode(_pin, INPUT_PULLUP);
     else
         return -1;
     
-    attachInterrupt(pin, onLimitSwitchISR, triggerMode);
+    attachInterrupt(_pin, onLimitSwitchISR, _triggerMode);
 
     return 0;
 }
@@ -83,15 +81,15 @@ void handlePhotoResistor(void* argv)
     // should never get here
 }
 
-TaskHandle_t initPhotoResistor(const uint8_t& pin, const uint16_t& threshold, const uint32_t& period)
+TaskHandle_t initPhotoResistor(const uint8_t& _pin, const uint16_t& _threshold, const uint32_t& _period)
 {
     if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
         return NULL;
 
     photo_R_config_t photo_R_config = {
-        .pin = pin,
-        .threshold = threshold,
-        .period = period,
+        .pin = _pin,
+        .threshold = _threshold,
+        .period = _period,
         .callingTask = xTaskGetCurrentTaskHandle()
     };
 
@@ -116,8 +114,11 @@ TaskHandle_t initPhotoResistor(const uint8_t& pin, const uint16_t& threshold, co
 
 void handleSound(void* argv)
 {
-    XT_Wav_Class woofSound(low_woof);
-    XT_DAC_Audio_Class DacAudio(*((uint8_t*)argv), 0);
+    sound_config_t* sound_config = (sound_config_t*)argv;
+    XT_DAC_Audio_Class DacAudio(sound_config->pin, 0);
+    XT_Wav_Class woofSound(sound_config->soundData);
+
+    xTaskNotifyGiveIndexed(sound_config->callingTask, 0);
 
     EventBits_t curBits;
     while (true)
@@ -153,35 +154,44 @@ void handleSound(void* argv)
     // should never get here
 }
 
-TaskHandle_t initSound(const uint8_t& pin)
+TaskHandle_t initSound(const uint8_t& _pin, const unsigned char* _soundData)
 {
     if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
         return NULL;
+
+    sound_config_t sound_config = {
+        .pin = _pin,
+        .soundData = _soundData,
+        .callingTask = xTaskGetCurrentTaskHandle()
+    };
 
     BaseType_t xResult;
     TaskHandle_t soundTaskHandle;
     xResult = xTaskCreate( handleSound,
                            "SoundHandler",
-                           4096,     // stack size in words (4 bytes on ESP32), TBD
-                           (void*)&pin,
+                           2048,     // stack size in words (4 bytes on ESP32), TBD
+                           (void*)&sound_config,
                            2,       // priority, >= 2 is good, TBD
                            &soundTaskHandle );
 
     if (xResult != pdPASS)
         return NULL;
 
+    ulTaskNotifyTakeIndexed( 0,         // take from the 0th notification
+                             pdTRUE,    // true -> clear the value before returning, won't affect returned value
+                             portMAX_DELAY);
+
     return soundTaskHandle;
 }
 
 void handleLED(void* argv)
 {
-    uint8_t  sck = ((uint8_t*)argv)[0];
-    uint8_t miso = ((uint8_t*)argv)[1];
-    uint8_t mosi = ((uint8_t*)argv)[2];
-    uint8_t   cs = ((uint8_t*)argv)[3];
+    led_config_t* led_config = (led_config_t*)argv;
+    LedMatrix ledMatrix(1, led_config->sck, led_config->miso, led_config->mosi, led_config->cs);
+
+    xTaskNotifyGiveIndexed(led_config->callingTask, 0);
 
     int curDisplay = 0;     // 0 -> pattern, 1 -> text
-    LedMatrix ledMatrix(1, sck, miso, mosi, cs);
     ledMatrix.init();
     ledMatrix.setIntensity(15);   // 0-15
 
@@ -241,28 +251,34 @@ void handleLED(void* argv)
     }
 }
 
-TaskHandle_t initLED(const uint8_t& sck, const uint8_t& miso, const uint8_t& mosi, const uint8_t& cs)
+TaskHandle_t initLED(const uint8_t& _sck, const uint8_t& _miso, const uint8_t& _mosi, const uint8_t& _cs)
 {
     if (dogEventGroup == NULL && createDogEG() == NULL)   // create failed
         return NULL;
 
-    uint8_t argv[4];
-    argv[0] = sck;
-    argv[1] = miso;
-    argv[2] = mosi;
-    argv[3] = cs;
+    led_config_t led_config = {
+        .sck  = _sck,
+        .miso = _miso,
+        .mosi = _mosi,
+        .cs   = _cs,
+        .callingTask = xTaskGetCurrentTaskHandle()
+    };
 
     BaseType_t xResult;
     TaskHandle_t ledTaskHandle;
     xResult = xTaskCreate( handleLED,
                            "LEDHandler",
-                           4096,     // stack size in words (4 bytes on ESP32), TBD
-                           (void*)argv,
+                           2048,     // stack size in words (4 bytes on ESP32), TBD
+                           (void*)&led_config,
                            2,       // priority, >= 2 is good, TBD
                            &ledTaskHandle);
 
     if (xResult != pdPASS)
         return NULL;
+
+    ulTaskNotifyTakeIndexed( 0,         // take from the 0th notification
+                             pdTRUE,    // true -> clear the value before returning, won't affect returned value
+                             portMAX_DELAY);
 
     return ledTaskHandle;
 }

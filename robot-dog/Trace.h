@@ -39,7 +39,6 @@ class Trace {
         // set up
         void init();
     private:
-        Leg leg;
         Radar radar;
 };
 

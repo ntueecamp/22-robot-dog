@@ -2,16 +2,16 @@
 #define ESP32Servo_h
 
 
-#define DEFAULT_MIN_US           979.0
-#define DEFAULT_MAX_US           1979.0
+#define DEFAULT_MIN_US     500
+#define DEFAULT_MAX_US     2500
 
-#define MIN_SETPOINT             -1.0
-#define MAX_SETPOINT             1.0
+#define MIN_SETPOINT       -1.0
+#define MAX_SETPOINT       1.0
 
-#define PWM_FREQ                 50
-#define PWM_CYCLE                (1000000.0 / PWM_FREQ)
-#define TIMER_WIDTH              16
-#define TIMER_RESOLUTION         ((1 << TIMER_WIDTH) - 1)
+#define PWM_FREQ           50
+#define PWM_CYCLE          (1000000.0 / PWM_FREQ)
+#define TIMER_WIDTH        16
+#define TIMER_RESOLUTION   ((1 << TIMER_WIDTH) - 1)
 
 class ESP32Servo {
 

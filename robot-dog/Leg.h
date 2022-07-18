@@ -18,12 +18,18 @@ class Leg {
 
 private:
 
-  ESP32Servo leftServo, rightServo;
+  ESP32Servo leftServo;
+  ESP32Servo rightServo;
 
-  int leftChannel, rightChannel;
-  int leftPin, rightPin;
+  int leftChannel;
+  int rightChannel;
+  int leftPin;
+  int rightPin;
 
 public:
+
+  Leg();
+  ~Leg();
 
   // set channel and pin with specified or default values
   void initialize();
@@ -32,5 +38,7 @@ public:
   void write(double leftSetPoint, double rightSetPoint);
   
 };
+
+extern Leg dogLeg;
 
 #endif

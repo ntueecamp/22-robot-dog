@@ -16,7 +16,6 @@ typedef struct
     adc1_channel_t channel;
     TaskHandle_t callingTask;
 } audio_config_t;
-
 /**
  * @brief Init function and handler of audio recognition
  *
