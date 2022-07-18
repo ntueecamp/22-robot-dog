@@ -1,5 +1,6 @@
 #include "Microphone.h"
 
+#include <algorithm>
 
 Microphone::Microphone(const uint8_t& _pin, const adc1_channel_t& _channel, const uint32_t& _sampleRate)
  : pin(_pin), channel(_channel), sampleRate(_sampleRate)
@@ -42,9 +43,10 @@ void Microphone::init()
     i2s_set_adc_mode(ADC_UNIT_1, channel);
 }
 
-int Microphone::recordAudio(uint8_t* buf, const int& length)
+int Microphone::recordAudio(int16_t* buf, const int& length)
 {
-    int index = 0;
+    uint32_t index = 0, total = 0;
+    uint16_t minVal = 65535, maxVal = 0;
     size_t samplesAcquired = 0, bytesRead = 0;
     
     while (index < length)
@@ -59,14 +61,27 @@ int Microphone::recordAudio(uint8_t* buf, const int& length)
 
         for (int i = 0; i < bytesRead; i += 2)
         {
-            buf[index++] = ((micBuffer[i + 1] & 0xF) << 4) | (micBuffer[i] >> 4);   // rearrange bits and convert to 8-bit
+            buf[index] = (((int16_t)micBuffer[i + 1] & 0xF) << 8) | micBuffer[i];   // rearrange bits and convert to 8-bit
+
 #ifdef DEBUG
-            Serial.printf("%03x ", (((micBuffer[i + 1] & 0xF) << 4) | (micBuffer[i] >> 4)));
+            Serial.printf("%03x ", (((uint16_t)micBuffer[i + 1] & 0xF) << 8) | micBuffer[i]);
             if ((i + 2) % 64 == 0)
                 Serial.println();
-#endif // DEBUG
+#endif
+
+            total += buf[index];
+            if (buf[index] < minVal)
+                minVal = buf[index];
+            if (buf[index] > maxVal)
+                maxVal = buf[index];
+            index++;
         }
     }
+
+    float mean = (float)total / length;
+    float scale = 20000.0 / (float)std::max(mean - minVal, maxVal - mean);    // 2^15 = 32768
+    for (int i = 0; i < length; i++)
+        buf[i] = (buf[i] - mean) * scale;
 
     return index;
 }

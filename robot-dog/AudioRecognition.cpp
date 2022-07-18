@@ -1,17 +1,21 @@
 #include "AudioRecognition.h"
 
+#include "src/voice-recognition/CommandDetector.h"
 #include "Events.h"
 #include "Microphone.h"
 #include "Leg.h"
 
-uint8_t audioInputBuffer[TRANS_BUF_LEN];
+int16_t* audioInputBuffer;
 
 void handleAudioRecognition(void* argv)
 {
     audio_config_t* audio_config = (audio_config_t*)argv;
 
+    int16_t* audioInputBuffer = (int16_t*)malloc(sizeof(int16_t) * TRANS_BUF_LEN);
+
     Microphone mic(audio_config->pin, audio_config->channel, SAMPLE_RATE);
-    // NeuralNetwork
+    CommandDetector cmdDetector(audioInputBuffer);
+    CmdDectResult result = {0, NUMBER_COMMANDS};    // "_nonsense" with score 0
     xTaskNotifyGiveIndexed(audio_config->callingTask, 0);
 
     mic.init();
@@ -42,18 +46,21 @@ void handleAudioRecognition(void* argv)
 
                 mic.recordAudio(audioInputBuffer, TRANS_BUF_LEN);
 
-                // send to NN
-                // predict
+                result = cmdDetector.run();
+            
+            #ifdef DEBUG
+                Serial.printf("detected: %s, with: %.3f\n", commands[result.index], result.score);
+            #endif
 
                 // broadcast event
                 if (!moving)
                 {
-                    if (false)     // go
+                    if (result.index == 2)     // go
                         moving = 1;
                 }
                 else
                 {
-                    if (false)          // sit
+                    if (result.index == 1)          // sit
                     {
                         dogLeg.write(0.0, 0.0);
                         moving = 0;
@@ -82,12 +89,13 @@ void handleAudioRecognition(void* argv)
                         vTaskDelay(1000 / portTICK_PERIOD_MS);
                         dogLeg.write(0.0, 0.0);
                     }
-                    else if (false)     // follow
+                    else if (result.index == 0)     // follow
                     {
                         // hardReset();
                         break;
                     }
                 }
+                taskYIELD();
             }   // inner while
 
             xEventGroupSetBits(dogEventGroup, WOOF_BIT);

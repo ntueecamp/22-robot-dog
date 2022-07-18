@@ -37,7 +37,7 @@ void setup() {
 
   // interact inputs
   initCapTouch(CAP_TOUCH_PIN, 50);
-  initLimitSwitch(LIMIT_SWITCH_PIN, RISING);
+  initLimitSwitch(LIMIT_SWITCH_PIN, FALLING);
   initPhotoResistor(PHOTO_RESISTOR_PIN, 1500, 300);    // with 10 kohm to GND
 
   // interact outputs
