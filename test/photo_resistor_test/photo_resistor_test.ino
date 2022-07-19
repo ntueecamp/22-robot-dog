@@ -1,4 +1,5 @@
 // cap_test: Find the threshold of the photo resistor sensor
+
 #define PHOTO_RESISTOR_PIN 32
 
 void setup() {
