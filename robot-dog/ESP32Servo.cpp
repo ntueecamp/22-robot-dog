@@ -2,6 +2,14 @@
 
 #include <Arduino.h>
 
+ESP32Servo::ESP32Servo() {
+
+}
+
+ESP32Servo::~ESP32Servo() {
+
+}
+
 void ESP32Servo::initialize(int _channel, int _servoPin) {
   _initialize(_channel, _servoPin, DEFAULT_MIN_US, DEFAULT_MAX_US);
 }

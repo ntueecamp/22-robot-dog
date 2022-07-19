@@ -12,7 +12,7 @@
 #include "Interact.h"
 #include "Trace.h"
 #include "AudioRecognition.h"
-#include "low_woof.h"
+#include "woof.h"
 
 #define CAP_TOUCH_PIN      4
 #define LIMIT_SWITCH_PIN   12
@@ -37,11 +37,11 @@ void setup() {
 
   // interact inputs
   initCapTouch(CAP_TOUCH_PIN, 50);
-  initLimitSwitch(LIMIT_SWITCH_PIN, RISING);
+  initLimitSwitch(LIMIT_SWITCH_PIN, FALLING);
   initPhotoResistor(PHOTO_RESISTOR_PIN, 1500, 300);    // with 10 kohm to GND
 
   // interact outputs
-  initSound(SOUND_PIN, low_woof);
+  initSound(SOUND_PIN, woof);
   initLED(SCK_PIN, MISO_PIN, MOSI_PIN, CS_PIN);
 
   // follow
@@ -56,7 +56,22 @@ void setup() {
 #endif
 }
 
+#ifdef DEBUG
+  #include "Events.h"
+  EventBits_t dogBits;
+#endif
+
 void loop() {
   // put your main code here, to run repeatedly:
   // Dont put anything here, use RTOS task instead
+#ifdef DEBUG
+  dogBits = xEventGroupGetBits(dogEventGroup);
+  Serial.print((dogBits & CAP_TOUCH_BIT)      > 0);
+  Serial.print((dogBits & LIMIT_SWITCH_BIT)   > 0);
+  Serial.print((dogBits & PHOTO_RESISTOR_BIT) > 0);
+  Serial.print((dogBits & FOLLOWING_BIT)      > 0);
+  Serial.print((dogBits & FOLLOW_STOP_BIT)    > 0);
+  Serial.println("");
+  vTaskDelay(1000 / portTICK_PERIOD_MS);
+#endif
 }

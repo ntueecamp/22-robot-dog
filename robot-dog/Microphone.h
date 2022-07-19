@@ -35,7 +35,7 @@ public:
      * @param length The number of samples acquired to fill
      * @return int The number of samples filled
      */
-    int recordAudio(uint8_t* buf, const int& length);
+    int recordAudio(int16_t* buf, const int& length);
 };
 
 #endif // MICROPHONE_H
