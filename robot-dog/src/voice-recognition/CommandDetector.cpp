@@ -9,6 +9,13 @@
 #define AUDIO_LENGTH 16000
 #define DETECTION_THRESHOLD -3
 
+const char* commands[NUMBER_COMMANDS] = {
+    "follow",
+    "stop",
+    "go",
+    "_nonsense",
+};
+
 CommandDetector::CommandDetector(int16_t* _input_audio)
 {
     // Create our neural network
@@ -90,6 +97,10 @@ CmdDectResult CommandDetector::run()
         m_last_detection = start;
         // Serial.printf("detected: %s, with: %.3f\n", commands[best_index], best_score);
         // m_command_processor->queueCommand(best_index, best_score);
+    }
+    else
+    {
+        best_index = NUMBER_COMMANDS - 1;
     }
     // compute the stats
     m_average_detect_time = (end - start) * 0.1 + m_average_detect_time * 0.9;

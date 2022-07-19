@@ -5,6 +5,8 @@
 #include "Microphone.h"
 #include "Leg.h"
 
+#include <Arduino.h>
+
 int16_t* audioInputBuffer;
 
 void handleAudioRecognition(void* argv)
@@ -51,6 +53,7 @@ void handleAudioRecognition(void* argv)
             #ifdef DEBUG
                 Serial.printf("detected: %s, with: %.3f\n", commands[result.index], result.score);
             #endif
+                Serial.printf("detected: %s, with: %.3f\n", commands[result.index], result.score);
 
                 // broadcast event
                 if (!moving)
@@ -89,7 +92,7 @@ void handleAudioRecognition(void* argv)
                         vTaskDelay(1000 / portTICK_PERIOD_MS);
                         dogLeg.write(0.0, 0.0);
                     }
-                    else if (result.index == 0)     // follow
+                    else if (false)// (result.index == 0)     // follow
                     {
                         // hardReset();
                         break;
@@ -123,7 +126,7 @@ TaskHandle_t initAudioRecognition(const uint8_t& _pin, const adc1_channel_t& _ch
     TaskHandle_t audioRecognitionTaskHandle;
     xResult = xTaskCreate( handleAudioRecognition,
                            "AudioRecognitionHandler",
-                           2048,     // stack size in words (4 bytes on ESP32)
+                           4096,     // stack size in words (4 bytes on ESP32)
                            (void*)&audio_config,
                            2,       // priority, >= 2 is good, TBD
                            &audioRecognitionTaskHandle);

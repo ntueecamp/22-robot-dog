@@ -7,12 +7,7 @@ class AudioProcessor;
 #define NUMBER_COMMANDS 4
 #define COMMAND_WINDOW 3
 
-const char* commands[] = {
-    "follow",
-    "stop",
-    "go",
-    "_nonsense",
-};
+extern const char* commands[NUMBER_COMMANDS];
 
 typedef struct
 {

@@ -6,8 +6,8 @@
  *  See COPYING file for more information.
  */
 
-#ifndef kiss_fft_log_h
-#define kiss_fft_log_h
+#ifndef my_kiss_fft_log_h
+#define my_kiss_fft_log_h
 
 #define ERROR 1
 #define WARNING 2
@@ -18,19 +18,19 @@
 #define TOSTRING(x) STRINGIFY(x)
 
 #if defined(NDEBUG)
-# define KISS_FFT_LOG_MSG(severity, ...) ((void)0)
+# define MY_KISS_FFT_LOG_MSG(severity, ...) ((void)0)
 #else
-# define KISS_FFT_LOG_MSG(severity, ...) \
+# define MY_KISS_FFT_LOG_MSG(severity, ...) \
     fprintf(stderr, "[" #severity "] " __FILE__ ":" TOSTRING(__LINE__) " "); \
     fprintf(stderr, __VA_ARGS__); \
     fprintf(stderr, "\n")
 #endif
 
-#define KISS_FFT_ERROR(...) KISS_FFT_LOG_MSG(ERROR, __VA_ARGS__)
-#define KISS_FFT_WARNING(...) KISS_FFT_LOG_MSG(WARNING, __VA_ARGS__)
-#define KISS_FFT_INFO(...) KISS_FFT_LOG_MSG(INFO, __VA_ARGS__)
-#define KISS_FFT_DEBUG(...) KISS_FFT_LOG_MSG(DEBUG, __VA_ARGS__)
+#define MY_KISS_FFT_ERROR(...) MY_KISS_FFT_LOG_MSG(ERROR, __VA_ARGS__)
+#define MY_KISS_FFT_WARNING(...) MY_KISS_FFT_LOG_MSG(WARNING, __VA_ARGS__)
+#define MY_KISS_FFT_INFO(...) MY_KISS_FFT_LOG_MSG(INFO, __VA_ARGS__)
+#define MY_KISS_FFT_DEBUG(...) MY_KISS_FFT_LOG_MSG(DEBUG, __VA_ARGS__)
 
 
 
-#endif /* kiss_fft_log_h */
+#endif /* my_kiss_fft_log_h */

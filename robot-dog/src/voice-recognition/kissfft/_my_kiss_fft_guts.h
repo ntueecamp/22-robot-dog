@@ -6,16 +6,16 @@
  *  See COPYING file for more information.
  */
 
-/* kiss_fft.h
-   defines kiss_fft_scalar as either short or a float type
+/* my_kiss_fft.h
+   defines my_kiss_fft_scalar as either short or a float type
    and defines
-   typedef struct { kiss_fft_scalar r; kiss_fft_scalar i; }kiss_fft_cpx; */
+   typedef struct { my_kiss_fft_scalar r; my_kiss_fft_scalar i; }my_kiss_fft_cpx; */
 
-#ifndef _kiss_fft_guts_h
-#define _kiss_fft_guts_h
+#ifndef _my_kiss_fft_guts_h
+#define _my_kiss_fft_guts_h
 
-#include "kiss_fft.h"
-#include "kiss_fft_log.h"
+#include "my_kiss_fft.h"
+#include "my_kiss_fft_log.h"
 #include <limits.h>
 
 #define MAXFACTORS 32
@@ -24,11 +24,11 @@
  4*4*4*2
  */
 
-struct kiss_fft_state{
+struct my_kiss_fft_state{
     int nfft;
     int inverse;
     int factors[2*MAXFACTORS];
-    kiss_fft_cpx twiddles[1];
+    my_kiss_fft_cpx twiddles[1];
 };
 
 /*
@@ -57,12 +57,12 @@ struct kiss_fft_state{
 #if defined(CHECK_OVERFLOW)
 #  define CHECK_OVERFLOW_OP(a,op,b)  \
     if ( (SAMPPROD)(a) op (SAMPPROD)(b) > SAMP_MAX || (SAMPPROD)(a) op (SAMPPROD)(b) < SAMP_MIN ) { \
-        KISS_FFT_WARNING("overflow (%d " #op" %d) = %ld", (a),(b),(SAMPPROD)(a) op (SAMPPROD)(b)); }
+        MY_KISS_FFT_WARNING("overflow (%d " #op" %d) = %ld", (a),(b),(SAMPPROD)(a) op (SAMPPROD)(b)); }
 #endif
 
 
 #   define smul(a,b) ( (SAMPPROD)(a)*(b) )
-#   define sround( x )  (kiss_fft_scalar)( ( (x) + (1<<(FRACBITS-1)) ) >> FRACBITS )
+#   define sround( x )  (my_kiss_fft_scalar)( ( (x) + (1<<(FRACBITS-1)) ) >> FRACBITS )
 
 #   define S_MUL(a,b) sround( smul(a,b) )
 
@@ -125,43 +125,43 @@ struct kiss_fft_state{
 
 
 #ifdef FIXED_POINT
-#  define KISS_FFT_COS(phase)  floor(.5+SAMP_MAX * cos (phase))
-#  define KISS_FFT_SIN(phase)  floor(.5+SAMP_MAX * sin (phase))
+#  define MY_KISS_FFT_COS(phase)  floor(.5+SAMP_MAX * cos (phase))
+#  define MY_KISS_FFT_SIN(phase)  floor(.5+SAMP_MAX * sin (phase))
 #  define HALF_OF(x) ((x)>>1)
 #elif defined(USE_SIMD)
-#  define KISS_FFT_COS(phase) _mm_set1_ps( cos(phase) )
-#  define KISS_FFT_SIN(phase) _mm_set1_ps( sin(phase) )
+#  define MY_KISS_FFT_COS(phase) _mm_set1_ps( cos(phase) )
+#  define MY_KISS_FFT_SIN(phase) _mm_set1_ps( sin(phase) )
 #  define HALF_OF(x) ((x)*_mm_set1_ps(.5))
 #else
-#  define KISS_FFT_COS(phase) (kiss_fft_scalar) cos(phase)
-#  define KISS_FFT_SIN(phase) (kiss_fft_scalar) sin(phase)
-#  define HALF_OF(x) ((x)*((kiss_fft_scalar).5))
+#  define MY_KISS_FFT_COS(phase) (my_kiss_fft_scalar) cos(phase)
+#  define MY_KISS_FFT_SIN(phase) (my_kiss_fft_scalar) sin(phase)
+#  define HALF_OF(x) ((x)*((my_kiss_fft_scalar).5))
 #endif
 
 #define  kf_cexp(x,phase) \
     do{ \
-        (x)->r = KISS_FFT_COS(phase);\
-        (x)->i = KISS_FFT_SIN(phase);\
+        (x)->r = MY_KISS_FFT_COS(phase);\
+        (x)->i = MY_KISS_FFT_SIN(phase);\
     }while(0)
 
 
 /* a debugging function */
 #define pcpx(c)\
-    KISS_FFT_DEBUG("%g + %gi\n",(double)((c)->r),(double)((c)->i))
+    MY_KISS_FFT_DEBUG("%g + %gi\n",(double)((c)->r),(double)((c)->i))
 
 
-#ifdef KISS_FFT_USE_ALLOCA
+#ifdef MY_KISS_FFT_USE_ALLOCA
 // define this to allow use of alloca instead of malloc for temporary buffers
 // Temporary buffers are used in two case:
 // 1. FFT sizes that have "bad" factors. i.e. not 2,3 and 5
 // 2. "in-place" FFTs.  Notice the quotes, since kissfft does not really do an in-place transform.
 #include <alloca.h>
-#define  KISS_FFT_TMP_ALLOC(nbytes) alloca(nbytes)
-#define  KISS_FFT_TMP_FREE(ptr)
+#define  MY_KISS_FFT_TMP_ALLOC(nbytes) alloca(nbytes)
+#define  MY_KISS_FFT_TMP_FREE(ptr)
 #else
-#define  KISS_FFT_TMP_ALLOC(nbytes) KISS_FFT_MALLOC(nbytes)
-#define  KISS_FFT_TMP_FREE(ptr) KISS_FFT_FREE(ptr)
+#define  MY_KISS_FFT_TMP_ALLOC(nbytes) MY_KISS_FFT_MALLOC(nbytes)
+#define  MY_KISS_FFT_TMP_FREE(ptr) MY_KISS_FFT_FREE(ptr)
 #endif
 
-#endif /* _kiss_fft_guts_h */
+#endif /* _my_kiss_fft_guts_h */
 

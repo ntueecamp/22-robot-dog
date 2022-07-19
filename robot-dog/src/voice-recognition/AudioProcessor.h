@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 // #define FIXED_POINT (16)
-#include "./kissfft/tools/kiss_fftr.h"
+#include "./kissfft/tools/my_kiss_fftr.h"
 
 class HammingWindow;
 
@@ -20,8 +20,8 @@ private:
     int m_energy_size;
     int m_pooled_energy_size;
     float *m_energy;
-    kiss_fft_cpx *m_fft_output;
-    kiss_fftr_cfg m_cfg;
+    my_kiss_fft_cpx *m_fft_output;
+    my_kiss_fftr_cfg m_cfg;
     float m_smoothed_noise_floor;
 
     HammingWindow *m_hamming_window;

@@ -6,8 +6,8 @@
  *  See COPYING file for more information.
  */
 
-#ifndef KISS_FFT_H
-#define KISS_FFT_H
+#ifndef MY_KISS_FFT_H
+#define MY_KISS_FFT_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,7 +15,7 @@
 #include <string.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C++" {
 #endif
 
 /*
@@ -27,30 +27,30 @@ extern "C" {
  -- a command-line utility to perform ffts
  -- a command-line utility to perform fast-convolution filtering
 
- Then see kfc.h kiss_fftr.h kiss_fftnd.h fftutil.c kiss_fastfir.c
+ Then see kfc.h my_kiss_fftr.h my_kiss_fftnd.h fftutil.c kiss_fastfir.c
   in the tools/ directory.
 */
 
-/* User may override KISS_FFT_MALLOC and/or KISS_FFT_FREE. */
+/* User may override MY_KISS_FFT_MALLOC and/or MY_KISS_FFT_FREE. */
 #ifdef USE_SIMD
 # include <xmmintrin.h>
-# define kiss_fft_scalar __m128
-# ifndef KISS_FFT_MALLOC
-#  define KISS_FFT_MALLOC(nbytes) _mm_malloc(nbytes,16)
-#  define KISS_FFT_ALIGN_CHECK(ptr) 
-#  define KISS_FFT_ALIGN_SIZE_UP(size) ((size + 15UL) & ~0xFUL)
+# define my_kiss_fft_scalar __m128
+# ifndef MY_KISS_FFT_MALLOC
+#  define MY_KISS_FFT_MALLOC(nbytes) _mm_malloc(nbytes,16)
+#  define MY_KISS_FFT_ALIGN_CHECK(ptr) 
+#  define MY_KISS_FFT_ALIGN_SIZE_UP(size) ((size + 15UL) & ~0xFUL)
 # endif
-# ifndef KISS_FFT_FREE
-#  define KISS_FFT_FREE _mm_free
+# ifndef MY_KISS_FFT_FREE
+#  define MY_KISS_FFT_FREE _mm_free
 # endif
 #else
-# define KISS_FFT_ALIGN_CHECK(ptr)
-# define KISS_FFT_ALIGN_SIZE_UP(size) (size)
-# ifndef KISS_FFT_MALLOC
-#  define KISS_FFT_MALLOC malloc
+# define MY_KISS_FFT_ALIGN_CHECK(ptr)
+# define MY_KISS_FFT_ALIGN_SIZE_UP(size) (size)
+# ifndef MY_KISS_FFT_MALLOC
+#  define MY_KISS_FFT_MALLOC malloc
 # endif
-# ifndef KISS_FFT_FREE
-#  define KISS_FFT_FREE free
+# ifndef MY_KISS_FFT_FREE
+#  define MY_KISS_FFT_FREE free
 # endif
 #endif
 
@@ -58,35 +58,35 @@ extern "C" {
 #ifdef FIXED_POINT
 #include <stdint.h>
 # if (FIXED_POINT == 32)
-#  define kiss_fft_scalar int32_t
+#  define my_kiss_fft_scalar int32_t
 # else	
-#  define kiss_fft_scalar int16_t
+#  define my_kiss_fft_scalar int16_t
 # endif
 #else
-# ifndef kiss_fft_scalar
+# ifndef my_kiss_fft_scalar
 /*  default is float */
-#   define kiss_fft_scalar float
+#   define my_kiss_fft_scalar float
 # endif
 #endif
 
 typedef struct {
-    kiss_fft_scalar r;
-    kiss_fft_scalar i;
-}kiss_fft_cpx;
+    my_kiss_fft_scalar r;
+    my_kiss_fft_scalar i;
+}my_kiss_fft_cpx;
 
-typedef struct kiss_fft_state* kiss_fft_cfg;
+typedef struct my_kiss_fft_state* my_kiss_fft_cfg;
 
 /* 
- *  kiss_fft_alloc
+ *  my_kiss_fft_alloc
  *  
  *  Initialize a FFT (or IFFT) algorithm's cfg/state buffer.
  *
- *  typical usage:      kiss_fft_cfg mycfg=kiss_fft_alloc(1024,0,NULL,NULL);
+ *  typical usage:      my_kiss_fft_cfg mycfg=my_kiss_fft_alloc(1024,0,NULL,NULL);
  *
  *  The return value from fft_alloc is a cfg buffer used internally
  *  by the fft routine or NULL.
  *
- *  If lenmem is NULL, then kiss_fft_alloc will allocate a cfg buffer using malloc.
+ *  If lenmem is NULL, then my_kiss_fft_alloc will allocate a cfg buffer using malloc.
  *  The returned value should be free()d when done to avoid memory leaks.
  *  
  *  The state can be placed in a user supplied buffer 'mem':
@@ -99,10 +99,10 @@ typedef struct kiss_fft_state* kiss_fft_cfg;
  *      buffer size in *lenmem.
  * */
 
-kiss_fft_cfg kiss_fft_alloc(int nfft,int inverse_fft,void * mem,size_t * lenmem); 
+my_kiss_fft_cfg my_kiss_fft_alloc(int nfft,int inverse_fft,void * mem,size_t * lenmem); 
 
 /*
- * kiss_fft(cfg,in_out_buf)
+ * my_kiss_fft(cfg,in_out_buf)
  *
  * Perform an FFT on a complex input buffer.
  * for a forward FFT,
@@ -111,32 +111,32 @@ kiss_fft_cfg kiss_fft_alloc(int nfft,int inverse_fft,void * mem,size_t * lenmem)
  * Note that each element is complex and can be accessed like
     f[k].r and f[k].i
  * */
-void kiss_fft(kiss_fft_cfg cfg,const kiss_fft_cpx *fin,kiss_fft_cpx *fout);
+void my_kiss_fft(my_kiss_fft_cfg cfg,const my_kiss_fft_cpx *fin,my_kiss_fft_cpx *fout);
 
 /*
  A more generic version of the above function. It reads its input from every Nth sample.
  * */
-void kiss_fft_stride(kiss_fft_cfg cfg,const kiss_fft_cpx *fin,kiss_fft_cpx *fout,int fin_stride);
+void my_kiss_fft_stride(my_kiss_fft_cfg cfg,const my_kiss_fft_cpx *fin,my_kiss_fft_cpx *fout,int fin_stride);
 
-/* If kiss_fft_alloc allocated a buffer, it is one contiguous 
+/* If my_kiss_fft_alloc allocated a buffer, it is one contiguous 
    buffer and can be simply free()d when no longer needed*/
-#define kiss_fft_free KISS_FFT_FREE
+#define my_kiss_fft_free MY_KISS_FFT_FREE
 
 /*
  Cleans up some memory that gets managed internally. Not necessary to call, but it might clean up 
  your compiler output to call this before you exit.
 */
-void kiss_fft_cleanup(void);
+void my_kiss_fft_cleanup(void);
 	
 
 /*
  * Returns the smallest integer k, such that k>=n and k has only "fast" factors (2,3,5)
  */
-int kiss_fft_next_fast_size(int n);
+int my_kiss_fft_next_fast_size(int n);
 
 /* for real ffts, we need an even size */
-#define kiss_fftr_next_fast_size_real(n) \
-        (kiss_fft_next_fast_size( ((n)+1)>>1)<<1)
+#define my_kiss_fftr_next_fast_size_real(n) \
+        (my_kiss_fft_next_fast_size( ((n)+1)>>1)<<1)
 
 #ifdef __cplusplus
 } 

@@ -19,13 +19,13 @@ AudioProcessor::AudioProcessor(int audio_length, int window_size, int step_size,
     }
     m_fft_input = static_cast<float *>(malloc(sizeof(float) * m_fft_size));
     m_energy_size = m_fft_size / 2 + 1;
-    m_fft_output = static_cast<kiss_fft_cpx *>(malloc(sizeof(kiss_fft_cpx) * m_energy_size));
+    m_fft_output = static_cast<my_kiss_fft_cpx *>(malloc(sizeof(my_kiss_fft_cpx) * m_energy_size));
     m_energy = static_cast<float *>(malloc(sizeof(float) * m_energy_size));
     // work out the pooled energy size
     m_pooled_energy_size = ceilf((float)m_energy_size / (float)pooling_size);
     printf("m_pooled_energy_size=%d\n", m_pooled_energy_size);
     // initialise kiss fftr
-    m_cfg = kiss_fftr_alloc(m_fft_size, false, 0, 0);
+    m_cfg = my_kiss_fftr_alloc(m_fft_size, false, 0, 0);
     // initialise the hamming window
     m_hamming_window = new HammingWindow(m_window_size);
     // track the noise floor
@@ -47,10 +47,10 @@ void AudioProcessor::get_spectrogram_segment(float *output)
     // apply the hamming window to the samples
     m_hamming_window->applyWindow(m_fft_input);
     // do the fft
-    kiss_fftr(
+    my_kiss_fftr(
         m_cfg,
         m_fft_input,
-        reinterpret_cast<kiss_fft_cpx *>(m_fft_output));
+        reinterpret_cast<my_kiss_fft_cpx *>(m_fft_output));
     // pull out the magnitude squared values
     for (int i = 0; i < m_energy_size; i++)
     {
