@@ -1,23 +1,48 @@
 #include "AudioRecognition.h"
 
+#include "src/Events.h"
+#include "src/Microphone.h"
+#ifdef AUDIO_RECOGNITION
 #include "src/voice-recognition/CommandDetector.h"
-#include "Events.h"
-#include "Microphone.h"
 #include "Leg.h"
+#endif
+#ifdef AUDIO_PARROT
+#include "Speaker.h"
+
+const uint8_t wavHeader[44] = {
+    0x52, 0x49, 0x46, 0x46, 0xA4, 0x3E, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45, 0x66, 0x6D, 0x74, 0x20,
+    0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x80, 0x3E, 0x00, 0x00, 0x80, 0x3E, 0x00, 0x00,
+    0x01, 0x00, 0x08, 0x00, 0x64, 0x61, 0x74, 0x61, 0x80, 0x3E, 0x00, 0x00};    // length 44
+#endif
+
 
 void handleAudioRecognition(void* argv)
 {
     audio_config_t* audio_config = (audio_config_t*)argv;
 
+#ifdef AUDIO_RECOGNITION
     int16_t* audioInputBuffer = (int16_t*)malloc(sizeof(int16_t) * TRANS_BUF_LEN);
 
     Microphone mic(audio_config->pin, audio_config->channel, SAMPLE_RATE);
     CommandDetector cmdDetector(audioInputBuffer);
     CmdDectResult result = {CMD_NONSENSE, -1000};    // _nonsense with score -1000
+#endif
+#ifdef AUDIO_PARROT
+    int16_t* audioInputBuffer = (int16_t*)malloc(sizeof(int16_t) * TRANS_BUF_LEN + 44);
+    memcpy(audioInputBuffer, wavHeader, 44);
+
+    XT_Wav_Class* parrotSound = NULL;
+#endif
+
     xTaskNotifyGiveIndexed(audio_config->callingTask, 0);
 
     mic.init();
+#ifdef AUDIO_RECOGNITION
     mic.recordAudio(audioInputBuffer, TRANS_BUF_LEN);
+#endif
+#ifdef AUDIO_PARROT
+    mic.recordAudio(audioInputBuffer + 44, TRANS_BUF_LEN);
+#endif
 
     EventBits_t curBits;
     int64_t entryTime = esp_timer_get_time();
@@ -52,7 +77,8 @@ void handleAudioRecognition(void* argv)
                 vTaskDelay(500 / portTICK_PERIOD_MS);
                 mic.recordAudio(audioInputBuffer, TRANS_BUF_LEN);
 
-                result = cmdDetector.run();        
+            #ifdef AUDIO_RECOGNITION
+                result = cmdDetector.run();
             
             #ifdef DEBUG
                 Serial.printf("detected: %s, with: %.3f\n", commands[result.index], result.score);
@@ -102,6 +128,25 @@ void handleAudioRecognition(void* argv)
                         break;
                     }
                 }
+            #endif
+            #ifdef AUDIO_PARROT
+                if (DacAudio != NULL)
+                {
+                    parrotSound = new XT_Wav_Class(audioInputBuffer);
+                    DacAudio->Play(parrotSound);
+
+                    while (parrotSound->Playing)   // loop until the sound ends
+                    {
+                        DacAudio->FillBuffer();  // fill buffer to DAC, buffer size is 4000
+                        // we need to call this function at least (SAMPLE_RATE / 4000) times per second
+                        taskYIELD();
+                    }
+                    DacAudio->StopAllSounds();
+
+                    delete parrotSound;
+                    parrotSound = NULL;
+                }
+            #endif
                 taskYIELD();
             }   // inner while
 

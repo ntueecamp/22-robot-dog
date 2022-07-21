@@ -1,7 +1,7 @@
 #include "Trace.h"
 
 #include <Arduino.h>
-#include "Events.h"
+#include "src/Events.h"
 
 Trace::Trace() {
 }

@@ -8,11 +8,11 @@
 
 #define DEBUG
 
-#include "driver/adc.h"
 #include "Interact.h"
+#include "Speaker.h"
+#include "Tag.h"
 #include "Trace.h"
 #include "AudioRecognition.h"
-#include "woof.h"
 
 #define CAP_TOUCH_PIN      4
 #define LIMIT_SWITCH_PIN   12
@@ -41,7 +41,7 @@ void setup() {
   initPhotoResistor(PHOTO_RESISTOR_PIN, 1500, 300);    // with 10 kohm to GND
 
   // interact outputs
-  initSound(SOUND_PIN, woof);
+  initSound(SOUND_PIN);
   initLED(SCK_PIN, MISO_PIN, MOSI_PIN, CS_PIN);
 
   // follow
@@ -57,7 +57,7 @@ void setup() {
 }
 
 #ifdef DEBUG
-  #include "Events.h"
+  #include "src/Events.h"
   EventBits_t dogBits;
 #endif
 
