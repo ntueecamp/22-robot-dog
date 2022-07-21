@@ -167,3 +167,24 @@ void LedMatrix::setColumn(int column, byte value) {
 void LedMatrix::setPixel(byte x, byte y) {
     bitWrite(cols[x], y, true);
 }
+
+void LedMatrix::adjectTextOrientation() {
+    byte* tmpCols = new byte[myNumberOfDevices * 8];
+    memcpy(tmpCols, cols, myNumberOfDevices * 8);
+    for (int device = 0; device < myNumberOfDevices; device++) {
+        for (int col = 0; col < 8; col++) {
+            byte mask = (1 << (7 - col));
+            cols[device * 8 + col] = (
+                ( tmpCols[device * 8 + 0] >> (7 - col) & 1 ) << 0 |
+                ( tmpCols[device * 8 + 1] >> (7 - col) & 1 ) << 1 |
+                ( tmpCols[device * 8 + 2] >> (7 - col) & 1 ) << 2 |
+                ( tmpCols[device * 8 + 3] >> (7 - col) & 1 ) << 3 |
+                ( tmpCols[device * 8 + 4] >> (7 - col) & 1 ) << 4 |
+                ( tmpCols[device * 8 + 5] >> (7 - col) & 1 ) << 5 |
+                ( tmpCols[device * 8 + 6] >> (7 - col) & 1 ) << 6 |
+                ( tmpCols[device * 8 + 7] >> (7 - col) & 1 ) << 7
+            );
+        }
+    }
+    delete tmpCols;
+}

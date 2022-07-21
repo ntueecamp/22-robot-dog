@@ -116,6 +116,11 @@ public:
      * Oscilate the text between the two limits.
      */
     void oscillateText();
+
+    /**
+     * Adject the orientation of the text so that it displays correctly, added by ntueecamp (FrSh28)
+     */
+    void adjectTextOrientation();
     
 private:
     byte* cols;

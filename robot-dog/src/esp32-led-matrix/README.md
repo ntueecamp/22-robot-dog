@@ -1,4 +1,4 @@
-The files in this directory was copied from <https://github.com/nhatuan84/esp32-led-matrix>
+The files in this directory was copied and modified from <https://github.com/nhatuan84/esp32-led-matrix>
 
 visit IOTSHARING.COM for more
 
