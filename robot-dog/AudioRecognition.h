@@ -8,8 +8,6 @@
 #define SAMPLE_RATE   16000
 #define TRANS_BUF_LEN 16000
 
-extern int16_t* audioInputBuffer;
-
 typedef struct
 {
     uint8_t pin;
