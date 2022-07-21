@@ -219,6 +219,8 @@ void handleLED(void* argv)
 
     int curDisplay = 0;     // 0 -> pattern, 1 -> text
     ledMatrix.init();
+    ledMatrix.clear();
+    ledMatrix.commit();     // clear led display
     ledMatrix.setIntensity(15);   // 0-15
 
     // display pattern
@@ -255,6 +257,7 @@ void handleLED(void* argv)
                     ledMatrix.clear();
                     ledMatrix.scrollTextLeft();
                     ledMatrix.drawText();
+                    ledMatrix.adjectTextOrientation();
                     ledMatrix.commit();
 
                     vTaskDelayUntil(&lastWakeTime, period);   // times per second

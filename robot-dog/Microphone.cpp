@@ -48,7 +48,7 @@ int Microphone::recordAudio(int16_t* buf, const int& length)
     uint32_t index = 0, total = 0;
     uint16_t minVal = 65535, maxVal = 0;
     size_t samplesAcquired = 0, bytesRead = 0;
-    
+
     while (index < length)
     {
         samplesAcquired = length - index;
@@ -63,11 +63,12 @@ int Microphone::recordAudio(int16_t* buf, const int& length)
         {
             buf[index] = (((int16_t)micBuffer[i + 1] & 0xF) << 8) | micBuffer[i];   // rearrange bits and convert to 8-bit
 
-#ifdef DEBUG
+        #ifdef DEBUG
             Serial.printf("%03x ", (((uint16_t)micBuffer[i + 1] & 0xF) << 8) | micBuffer[i]);
+            // Serial.printf("%03x %01x%02x \n", (((int16_t)micBuffer[i + 1] & 0xF) << 8) | micBuffer[i], micBuffer[i + 1] & 0xF, micBuffer[i]);
             if ((i + 2) % 64 == 0)
                 Serial.println();
-#endif
+        #endif
 
             total += buf[index];
             if (buf[index] < minVal)
@@ -79,9 +80,13 @@ int Microphone::recordAudio(int16_t* buf, const int& length)
     }
 
     float mean = (float)total / length;
-    float scale = 20000.0 / (float)std::max(mean - minVal, maxVal - mean);    // 2^15 = 32768
+    float scale = 10000.0 / ((float)std::max(mean - minVal, maxVal - mean) + 1);    // 2^15 = 32768
     for (int i = 0; i < length; i++)
         buf[i] = (buf[i] - mean) * scale;
+
+#ifdef DEBUG
+    Serial.println(scale);
+#endif
 
     return index;
 }

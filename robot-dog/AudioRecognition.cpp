@@ -5,10 +5,6 @@
 #include "Microphone.h"
 #include "Leg.h"
 
-#include <Arduino.h>
-
-int16_t* audioInputBuffer;
-
 void handleAudioRecognition(void* argv)
 {
     audio_config_t* audio_config = (audio_config_t*)argv;
@@ -17,12 +13,14 @@ void handleAudioRecognition(void* argv)
 
     Microphone mic(audio_config->pin, audio_config->channel, SAMPLE_RATE);
     CommandDetector cmdDetector(audioInputBuffer);
-    CmdDectResult result = {0, NUMBER_COMMANDS};    // "_nonsense" with score 0
+    CmdDectResult result = {CMD_NONSENSE, -1000};    // _nonsense with score -1000
     xTaskNotifyGiveIndexed(audio_config->callingTask, 0);
 
     mic.init();
+    mic.recordAudio(audioInputBuffer, TRANS_BUF_LEN);
 
     EventBits_t curBits;
+    int64_t entryTime = esp_timer_get_time();
 
     while (true)
     {
@@ -34,9 +32,9 @@ void handleAudioRecognition(void* argv)
 
         if ((curBits & PHOTO_RESISTOR_BIT) && (curBits & FOLLOW_STOP_BIT))
         {
-#ifdef DEBUG
+        #ifdef DEBUG
             Serial.println("PHR");
-#endif // DEBUG
+        #endif // DEBUG
             xEventGroupClearBits(dogEventGroup, PHOTO_RESISTOR_BIT);
 
             int moving = 1;
@@ -44,57 +42,63 @@ void handleAudioRecognition(void* argv)
             {
                 curBits = xEventGroupGetBits(dogEventGroup);
                 if (curBits & PHOTO_RESISTOR_BIT)
-                    break;
+                {
+                    if (esp_timer_get_time() - entryTime > 1000000)     // 1 sec
+                        break;
+                    else
+                        xEventGroupClearBits(dogEventGroup, PHOTO_RESISTOR_BIT);
+                }
 
+                vTaskDelay(500 / portTICK_PERIOD_MS);
                 mic.recordAudio(audioInputBuffer, TRANS_BUF_LEN);
 
-                result = cmdDetector.run();
+                result = cmdDetector.run();        
             
             #ifdef DEBUG
                 Serial.printf("detected: %s, with: %.3f\n", commands[result.index], result.score);
             #endif
-                Serial.printf("detected: %s, with: %.3f\n", commands[result.index], result.score);
 
                 // broadcast event
                 if (!moving)
                 {
-                    if (result.index == 2)     // go
+                    if (false)
+                    {   // go
                         moving = 1;
+                    }
                 }
                 else
                 {
-                    if (result.index == 1)          // sit
-                    {
+                    if (false)          
+                    {   // sit
                         dogLeg.write(0.0, 0.0);
                         moving = 0;
                     }
-                    else if (false)     // forward
-                    {
-                        dogLeg.write(0.8, 0.8);
+                    else if (result.index == CMD_FORWARD)
+                    {   // forward
+                        dogLeg.write(0.6, 0.6);
                         vTaskDelay(1000 / portTICK_PERIOD_MS);
                         dogLeg.write(0.0, 0.0);
                     }
-                    else if (false)     // backward
-                    {
-                        dogLeg.write(-0.8, -0.8);
+                    else if (result.index == CMD_BACKWARD)
+                    {   // backward
+                        dogLeg.write(-0.6, -0.6);
                         vTaskDelay(1000 / portTICK_PERIOD_MS);
                         dogLeg.write(0.0, 0.0);
                     }
-                    else if (false)     // left
-                    {
-                        dogLeg.write(0.4, 0.8);
+                    else if (result.index == CMD_LEFT)
+                    {   // left
+                        dogLeg.write(0.4, 0.6);
                         vTaskDelay(1000 / portTICK_PERIOD_MS);
                         dogLeg.write(0.0, 0.0);
                     }
-                    else if (false)     // right
-                    {
-                        dogLeg.write(0.8, 0.4);
+                    else if (result.index == CMD_RIGHT)
+                    {   // right
+                        dogLeg.write(0.6, 0.4);
                         vTaskDelay(1000 / portTICK_PERIOD_MS);
                         dogLeg.write(0.0, 0.0);
                     }
-                    else if (false)// (result.index == 0)     // follow
-                    {
-                        // hardReset();
+                    else if (false)
+                    {   // follow
                         break;
                     }
                 }
