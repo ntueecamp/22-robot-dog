@@ -1,5 +1,6 @@
 #include "AudioRecognition.h"
 
+#include "src/AudioMode.h"
 #include "src/Events.h"
 #include "src/Microphone.h"
 #ifdef AUDIO_RECOGNITION
@@ -7,6 +8,8 @@
 #include "Leg.h"
 #endif
 #ifdef AUDIO_PARROT
+#include <cstring>
+#include "src/XT_DAC_Audio/XT_DAC_Audio.h"
 #include "Speaker.h"
 
 const uint8_t wavHeader[44] = {
@@ -20,16 +23,16 @@ void handleAudioRecognition(void* argv)
 {
     audio_config_t* audio_config = (audio_config_t*)argv;
 
-#ifdef AUDIO_RECOGNITION
     int16_t* audioInputBuffer = (int16_t*)malloc(sizeof(int16_t) * TRANS_BUF_LEN);
-
     Microphone mic(audio_config->pin, audio_config->channel, SAMPLE_RATE);
+
+#ifdef AUDIO_RECOGNITION
     CommandDetector cmdDetector(audioInputBuffer);
     CmdDectResult result = {CMD_NONSENSE, -1000};    // _nonsense with score -1000
 #endif
 #ifdef AUDIO_PARROT
-    int16_t* audioInputBuffer = (int16_t*)malloc(sizeof(int16_t) * TRANS_BUF_LEN + 44);
-    memcpy(audioInputBuffer, wavHeader, 44);
+    uint8_t* parrot = (uint8_t*)malloc(sizeof(int8_t) * 16044);
+    memcpy(parrot, wavHeader, 44);
 
     XT_Wav_Class* parrotSound = NULL;
 #endif
@@ -37,12 +40,7 @@ void handleAudioRecognition(void* argv)
     xTaskNotifyGiveIndexed(audio_config->callingTask, 0);
 
     mic.init();
-#ifdef AUDIO_RECOGNITION
     mic.recordAudio(audioInputBuffer, TRANS_BUF_LEN);
-#endif
-#ifdef AUDIO_PARROT
-    mic.recordAudio(audioInputBuffer + 44, TRANS_BUF_LEN);
-#endif
 
     EventBits_t curBits;
     int64_t entryTime = esp_timer_get_time();
@@ -130,9 +128,12 @@ void handleAudioRecognition(void* argv)
                 }
             #endif
             #ifdef AUDIO_PARROT
+                for (int i = 0; i < 16000; i++)
+                    parrot[44 + i] = audioInputBuffer[i] >> 4;
+
                 if (DacAudio != NULL)
                 {
-                    parrotSound = new XT_Wav_Class(audioInputBuffer);
+                    parrotSound = new XT_Wav_Class(parrot);
                     DacAudio->Play(parrotSound);
 
                     while (parrotSound->Playing)   // loop until the sound ends

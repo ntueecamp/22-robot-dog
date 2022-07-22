@@ -1,6 +1,7 @@
 #include "Microphone.h"
 
 #include <algorithm>
+#include "AudioMode.h"
 
 Microphone::Microphone(const uint8_t& _pin, const adc1_channel_t& _channel, const uint32_t& _sampleRate)
  : pin(_pin), channel(_channel), sampleRate(_sampleRate)
@@ -71,7 +72,7 @@ int Microphone::recordAudio(int16_t* buf, const int& length)
         #endif
 
             total += buf[index];
-            if (buf[index] < minVal)
+            if (buf[index] < minVal && buf[index] > 0)
                 minVal = buf[index];
             if (buf[index] > maxVal)
                 maxVal = buf[index];
@@ -80,9 +81,19 @@ int Microphone::recordAudio(int16_t* buf, const int& length)
     }
 
     float mean = (float)total / length;
-    float scale = 10000.0 / ((float)std::max(mean - minVal, maxVal - mean) + 1);    // 2^15 = 32768
+#ifdef AUDIO_RECOGNITION
+    float scale = 10000.0f / std::max((float)std::max(mean - minVal, maxVal - mean), 500.0f);    // 2^15 = 32768
     for (int i = 0; i < length; i++)
         buf[i] = (buf[i] - mean) * scale;
+#endif
+#ifdef AUDIO_PARROT
+    #ifdefDEBUG
+        Serial.printf("min: %4d, max: %4d\n", minVal, maxVal);
+    #endif
+    float scale = 1000.0f / std::max((float)std::max(mean - minVal, maxVal - mean), 500.0f);    // 2^15 = 32768
+    for (int i = 0; i < length; i++)
+        buf[i] = (buf[i] - mean) * scale + 2047;
+#endif
 
 #ifdef DEBUG
     Serial.println(scale);

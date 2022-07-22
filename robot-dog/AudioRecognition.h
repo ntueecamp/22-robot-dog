@@ -5,9 +5,6 @@
 #include "freertos/task.h"
 #include "driver/adc.h"
 
-#define AUDIO_RECOGNITION
-// #define AUDIO_PARROT
-
 #define SAMPLE_RATE   16000
 #define TRANS_BUF_LEN 16000
 
