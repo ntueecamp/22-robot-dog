@@ -58,37 +58,4 @@ typedef struct
 void handlePhotoResistor(void* argv);
 TaskHandle_t initPhotoResistor(const uint8_t& _pin, const uint16_t& _threshold, const uint32_t& _period = 1000);
 
-typedef struct
-{
-    uint8_t pin;
-    const unsigned char* soundData;
-    TaskHandle_t callingTask;
-} sound_config_t;
-/**
- * @brief Init function and infinite running handler related to sound
- *
- * @param pin The pin to output the sound (by DAC), GPIO 25 or 26
- */
-void handleSound(void* argv);
-TaskHandle_t initSound(const uint8_t& _pin, const unsigned char* _soundData);
-
-typedef struct
-{
-    uint8_t  sck;
-    uint8_t miso;
-    uint8_t mosi;
-    uint8_t   cs;
-    TaskHandle_t callingTask;
-} led_config_t;
-/**
- * @brief Init function and infinite running handler related to LED
- *
- * @param sck  Serial Clock pin
- * @param miso Master In, Slave Out pin
- * @param mosi Master Out, Slave In pin
- * @param cs   Chip Select pin
- */
-void handleLED(void* argv);
-TaskHandle_t initLED(const uint8_t& _sck, const uint8_t& _miso, const uint8_t& _mosi, const uint8_t& _cs);
-
 #endif // INTERACT_H
