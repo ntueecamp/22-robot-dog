@@ -1,16 +1,17 @@
 #include "AudioRecognition.h"
 
-#include "src/AudioMode.h"
-#include "src/Events.h"
-#include "src/Microphone.h"
+#include <Arduino.h>
+#include "AudioMode.h"
+#include "Events.h"
+#include "Microphone.h"
 #ifdef AUDIO_RECOGNITION
-#include "src/voice-recognition/CommandDetector.h"
-#include "Leg.h"
+#include "voice-recognition/CommandDetector.h"
+#include "../Leg.h"
 #endif
 #ifdef AUDIO_PARROT
 #include <cstring>
-#include "src/XT_DAC_Audio/XT_DAC_Audio.h"
-#include "Speaker.h"
+#include "XT_DAC_Audio/XT_DAC_Audio.h"
+#include "../Speaker.h"
 
 const uint8_t wavHeader[44] = {
     0x52, 0x49, 0x46, 0x46, 0xA4, 0x3E, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45, 0x66, 0x6D, 0x74, 0x20,
@@ -41,6 +42,7 @@ void handleAudioRecognition(void* argv)
 
     mic.init();
     mic.recordAudio(audioInputBuffer, TRANS_BUF_LEN);
+    pinMode(2, OUTPUT);     // on bord led, used to indicate audio recording
 
     EventBits_t curBits;
     int64_t entryTime = esp_timer_get_time();
@@ -73,14 +75,16 @@ void handleAudioRecognition(void* argv)
                 }
 
                 vTaskDelay(500 / portTICK_PERIOD_MS);
+                digitalWrite(2, HIGH);
                 mic.recordAudio(audioInputBuffer, TRANS_BUF_LEN);
+                digitalWrite(2, LOW);
 
             #ifdef AUDIO_RECOGNITION
                 result = cmdDetector.run();
             
-            #ifdef DEBUG
+            // #ifdef DEBUG
                 Serial.printf("detected: %s, with: %.3f\n", commands[result.index], result.score);
-            #endif
+            // #endif
 
                 // broadcast event
                 if (!moving)
@@ -102,24 +106,28 @@ void handleAudioRecognition(void* argv)
                         dogLeg.write(0.6, 0.6);
                         vTaskDelay(1000 / portTICK_PERIOD_MS);
                         dogLeg.write(0.0, 0.0);
+                        vTaskDelay(1000 / portTICK_PERIOD_MS);
                     }
                     else if (result.index == CMD_BACKWARD)
                     {   // backward
                         dogLeg.write(-0.6, -0.6);
                         vTaskDelay(1000 / portTICK_PERIOD_MS);
                         dogLeg.write(0.0, 0.0);
+                        vTaskDelay(1000 / portTICK_PERIOD_MS);
                     }
                     else if (result.index == CMD_LEFT)
                     {   // left
                         dogLeg.write(0.4, 0.6);
                         vTaskDelay(1000 / portTICK_PERIOD_MS);
                         dogLeg.write(0.0, 0.0);
+                        vTaskDelay(1000 / portTICK_PERIOD_MS);
                     }
                     else if (result.index == CMD_RIGHT)
                     {   // right
                         dogLeg.write(0.6, 0.4);
                         vTaskDelay(1000 / portTICK_PERIOD_MS);
                         dogLeg.write(0.0, 0.0);
+                        vTaskDelay(1000 / portTICK_PERIOD_MS);
                     }
                     else if (false)
                     {   // follow

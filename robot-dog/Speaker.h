@@ -4,6 +4,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#define SOUND_WOOF
+// #define SOUND_LOW_WOOF
+
+#define SPEAKER_TRIGGER CAP_TOUCH_BIT
+// #define SPEAKER_TRIGGER LIMIT_SWITCH_BIT
 
 class XT_DAC_Audio_Class;
 extern XT_DAC_Audio_Class* DacAudio;

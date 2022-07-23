@@ -59,14 +59,14 @@ void Trace::Move() {
     //    both side of the wheel need to have a lower bound velocity in absolute value
     //    the lower bound will be +/- MIN_VEL
     if (baseVel > 0) {
-        if (baseVel + deltaVel > 0) leftVel = baseVel + deltaVel;
+        if (baseVel + deltaVel > 0) leftVel  = baseVel + deltaVel;
         if (baseVel - deltaVel > 0) rightVel = baseVel - deltaVel;
-        leftVel = max(leftVel, MIN_VEL);
+        leftVel  = max(leftVel,  MIN_VEL);
         rightVel = max(rightVel, MIN_VEL);
     } else if (baseVel < 0) {
-        if (baseVel + deltaVel < 0) leftVel = baseVel + deltaVel;
+        if (baseVel + deltaVel < 0) leftVel  = baseVel + deltaVel;
         if (baseVel - deltaVel < 0) rightVel = baseVel - deltaVel;
-        leftVel = min(leftVel, -MIN_VEL);
+        leftVel  = min(leftVel,  -MIN_VEL);
         rightVel = min(rightVel, -MIN_VEL);
     }
     dogLeg.write(leftVel, rightVel);

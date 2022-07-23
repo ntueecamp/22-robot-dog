@@ -8,7 +8,7 @@
 // #include "tensorflow/lite/version.h"
 
 // approximate working size of our model
-const int kArenaSize = 30000;
+const int kArenaSize = 50000;
 
 NeuralNetwork::NeuralNetwork()
 {

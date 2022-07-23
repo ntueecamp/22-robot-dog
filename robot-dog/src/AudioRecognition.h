@@ -6,7 +6,7 @@
 #include "driver/adc.h"
 
 #define SAMPLE_RATE   16000
-#define TRANS_BUF_LEN 16000
+#define TRANS_BUF_LEN (SAMPLE_RATE * 1)
 
 typedef struct
 {

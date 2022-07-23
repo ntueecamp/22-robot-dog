@@ -11,7 +11,7 @@
 
 #include <Arduino.h>
 #include "driver/adc.h"
-#include "src/Events.h"
+#include "Events.h"
 
 void IRAM_ATTR onCapTouchISR()
 {
@@ -27,6 +27,13 @@ int initCapTouch(const uint8_t& _pin, const uint16_t& _threshold)
         return -1;
 
     touchAttachInterrupt(_pin, onCapTouchISR, _threshold);
+
+    // consume the first trigger signal, which is due to start up
+    xEventGroupWaitBits( dogEventGroup,
+                         CAP_TOUCH_BIT,
+                         pdTRUE,    // true -> clear the bits before returning, won't affect returned value
+                         pdFALSE,   // true -> wait for all
+                         1000 / portTICK_PERIOD_MS);
 
     return 0;
 }
@@ -61,7 +68,7 @@ void handlePhotoResistor(void* argv)
     photo_R_config_t* photo_R_config = (photo_R_config_t*)argv;
     uint8_t  pin       = photo_R_config->pin;
     uint16_t threshold = photo_R_config->threshold;
-    uint32_t period    = photo_R_config->period/ portTICK_PERIOD_MS;;
+    uint32_t period    = photo_R_config->period / portTICK_PERIOD_MS;;
 
     xTaskNotifyGiveIndexed(photo_R_config->callingTask, 0);
 

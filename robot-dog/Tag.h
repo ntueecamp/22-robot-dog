@@ -4,6 +4,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+// #define LED_TRIGGER CAP_TOUCH_BIT
+#define LED_TRIGGER LIMIT_SWITCH_BIT
+
 typedef struct
 {
     uint8_t  sck;
