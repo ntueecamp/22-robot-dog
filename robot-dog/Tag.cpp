@@ -13,9 +13,9 @@ void handleLED(void* argv)
 
     int curDisplay = 0;     // 0 -> pattern, 1 -> text
     ledMatrix.init();
+    ledMatrix.setIntensity(15);   // 0-15
     ledMatrix.clear();
     ledMatrix.commit();     // clear led display
-    ledMatrix.setIntensity(15);   // 0-15
 
     // display pattern
     ledMatrix.clear();
@@ -27,13 +27,13 @@ void handleLED(void* argv)
     EventBits_t curBits;
     while (true)
     {
-        curBits = xEventGroupWaitBits(dogEventGroup,
-                                       LIMIT_SWITCH_BIT,    // CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESISTOR_BIT
+        curBits = xEventGroupWaitBits( dogEventGroup,
+                                       LED_TRIGGER,
                                        pdFALSE,   // true -> clear the bits before returning, won't affect returned value
                                        pdFALSE,   // true -> wait for all
                                        portMAX_DELAY);
 
-        if (curBits & LIMIT_SWITCH_BIT)
+        if (curBits & LED_TRIGGER)
         {
         #ifdef DEBUG
             Serial.println("LIM");
@@ -69,7 +69,7 @@ void handleLED(void* argv)
                 curDisplay = 0;
             }
 
-            xEventGroupClearBits(dogEventGroup, LIMIT_SWITCH_BIT);
+            xEventGroupClearBits(dogEventGroup, LED_TRIGGER);
         }
     }
 }
@@ -89,7 +89,7 @@ TaskHandle_t initLED(const uint8_t& _sck, const uint8_t& _miso, const uint8_t& _
 
     BaseType_t xResult;
     TaskHandle_t ledTaskHandle;
-    xResult = xTaskCreate(handleLED,
+    xResult = xTaskCreate( handleLED,
                            "LEDHandler",
                            2048,     // stack size in words (4 bytes on ESP32), TBD
                            (void*)&led_config,
@@ -99,7 +99,7 @@ TaskHandle_t initLED(const uint8_t& _sck, const uint8_t& _miso, const uint8_t& _
     if (xResult != pdPASS)
         return NULL;
 
-    ulTaskNotifyTakeIndexed(0,         // take from the 0th notification
+    ulTaskNotifyTakeIndexed( 0,         // take from the 0th notification
                              pdTRUE,    // true -> clear the value before returning, won't affect returned value
                              portMAX_DELAY);
 

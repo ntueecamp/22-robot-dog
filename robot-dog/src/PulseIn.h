@@ -4,6 +4,14 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+typedef struct pulseIn_t
+{
+    uint8_t pin;
+    uint8_t state;
+    int64_t startTime;
+    int64_t endTime;
+    TaskHandle_t callingTask;
+} PulseIn_t;
 /**
  * @brief Modify pulseIn to be thread safe by using interrupts
  *        Should only be used in a Task!!

@@ -10,7 +10,6 @@
 #define FOLLOWING_BIT      (1 << 3)
 #define FOLLOW_STOP_BIT    (1 << 4)
 #define WOOF_BIT           (1 << 5)
-#define PARROT_BIT         (1 << 6)
 
 /**
  * @brief The event group of the robot dog

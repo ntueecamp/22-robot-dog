@@ -87,7 +87,7 @@ int Microphone::recordAudio(int16_t* buf, const int& length)
         buf[i] = (buf[i] - mean) * scale;
 #endif
 #ifdef AUDIO_PARROT
-    #ifdefDEBUG
+    #ifdef DEBUG
         Serial.printf("min: %4d, max: %4d\n", minVal, maxVal);
     #endif
     float scale = 1000.0f / std::max((float)std::max(mean - minVal, maxVal - mean), 500.0f);    // 2^15 = 32768

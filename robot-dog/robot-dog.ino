@@ -6,13 +6,14 @@
  * 
  */
 
-#define DEBUG
+// #define DEBUG
 
-#include "Interact.h"
+#include "src/Events.h"
+#include "src/Interact.h"
 #include "Speaker.h"
 #include "Tag.h"
 #include "Trace.h"
-#include "AudioRecognition.h"
+#include "src/AudioRecognition.h"
 
 #define CAP_TOUCH_PIN      4
 #define LIMIT_SWITCH_PIN   12
@@ -51,13 +52,16 @@ void setup() {
   // microphone
   initAudioRecognition(MIC_PIN, ADC_CHANNEL);
 
+  // woof to indicate setup done
+  xEventGroupSetBits(dogEventGroup, WOOF_BIT);
+  vTaskDelay(2000 / portTICK_PERIOD_MS);
+
 #ifdef DEBUG
   Serial.println("Setup Done!");
 #endif
 }
 
 #ifdef DEBUG
-  #include "src/Events.h"
   EventBits_t dogBits;
 #endif
 

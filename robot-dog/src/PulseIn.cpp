@@ -6,15 +6,6 @@
 #define RISING_BIT  (1 << 0)
 #define FALLING_BIT (1 << 1)
 
-typedef struct pulseIn_t
-{
-    uint8_t pin;
-    uint8_t state;
-    int64_t startTime;
-    int64_t endTime;
-    TaskHandle_t callingTask;
-} PulseIn_t;
-
 void IRAM_ATTR pulseInISR(void* _curPulseIn)
 {
     int64_t time = esp_timer_get_time();
@@ -60,12 +51,13 @@ void IRAM_ATTR pulseInISR(void* _curPulseIn)
 int pulseInThreadSafe(const uint8_t& pin, const uint8_t& state, const uint32_t timeout)
 {
     bool success = true;
-    PulseIn_t curPulseIn;
-    curPulseIn.pin         = pin;
-    curPulseIn.state       = state;
-    curPulseIn.startTime   = -1;
-    curPulseIn.endTime     = -1;
-    curPulseIn.callingTask = xTaskGetCurrentTaskHandle();
+    PulseIn_t curPulseIn = {
+        .pin = pin,
+        .state = state,
+        .startTime = -1,
+        .endTime = -1,
+        .callingTask = xTaskGetCurrentTaskHandle()
+    };
 
     attachInterruptArg(pin, pulseInISR, (void*)&curPulseIn, CHANGE);
 

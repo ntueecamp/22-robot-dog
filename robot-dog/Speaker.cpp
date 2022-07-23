@@ -2,7 +2,14 @@
 
 #include "src/XT_DAC_Audio/XT_DAC_Audio.h"
 #include "src/Events.h"
-#include "woof.h"
+#ifdef SOUND_WOOF
+#include "sounds/woof.h"
+#define SOUND_NAME woof
+#endif
+#ifdef SOUND_LOW_WOOF
+#include "sounds/low_woof.h"
+#define SOUND_NAME low_woof
+#endif
 
 XT_DAC_Audio_Class* DacAudio;
 
@@ -18,13 +25,13 @@ void handleSound(void* argv)
     EventBits_t curBits;
     while (true)
     {
-        curBits = xEventGroupWaitBits(dogEventGroup,
-                                       CAP_TOUCH_BIT | WOOF_BIT,    // CAP_TOUCH_BIT | LIMIT_SWITCH_BIT | PHOTO_RESISTOR_BIT
+        curBits = xEventGroupWaitBits( dogEventGroup,
+                                       SPEAKER_TRIGGER | WOOF_BIT,
                                        pdFALSE,   // true -> clear the bits before returning, won't affect returned value
                                        pdFALSE,   // true -> wait for all
                                        portMAX_DELAY);
 
-        if (curBits & CAP_TOUCH_BIT)
+        if (curBits & SPEAKER_TRIGGER)
         {
         #ifdef DEBUG
             Serial.println("CAP");
@@ -42,7 +49,7 @@ void handleSound(void* argv)
             DacAudio->StopAllSounds();
             // end sound playing
 
-            xEventGroupClearBits(dogEventGroup, CAP_TOUCH_BIT);
+            xEventGroupClearBits(dogEventGroup, SPEAKER_TRIGGER);
         }
         else if (curBits & WOOF_BIT)
         {
@@ -76,13 +83,13 @@ TaskHandle_t initSound(const uint8_t& _pin)
 
     sound_config_t sound_config = {
         .pin = _pin,
-        .soundData = woof,
+        .soundData = SOUND_NAME,
         .callingTask = xTaskGetCurrentTaskHandle()
     };
 
     BaseType_t xResult;
     TaskHandle_t soundTaskHandle;
-    xResult = xTaskCreate(handleSound,
+    xResult = xTaskCreate( handleSound,
                            "SoundHandler",
                            2048,     // stack size in words (4 bytes on ESP32), TBD
                            (void*)&sound_config,
@@ -92,7 +99,7 @@ TaskHandle_t initSound(const uint8_t& _pin)
     if (xResult != pdPASS)
         return NULL;
 
-    ulTaskNotifyTakeIndexed(0,         // take from the 0th notification
+    ulTaskNotifyTakeIndexed( 0,         // take from the 0th notification
                              pdTRUE,    // true -> clear the value before returning, won't affect returned value
                              portMAX_DELAY);
 
